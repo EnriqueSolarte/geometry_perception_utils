@@ -11,15 +11,15 @@ import vispy.io as vispy_file
 import os
 
 
-def plot_list_pcl(list_pcl, size):
-    
+def plot_list_pcl(list_pcl, size=1, scale_factor=15):
+
     colors = get_color_list(number_of_colors=list_pcl.__len__())
     pcl_colors = []
     for pcl, c in zip(list_pcl, colors.T):
         pcl_colors.append(np.ones_like(pcl)*c.reshape(3, 1))
 
-    plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size)
-    
+    plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor)
+
 
 def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_colors=None):
     """
@@ -74,7 +74,7 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
 
 def plot_color_plc(
     points,
-    color=(0, 0, 0, 1),
+    color=(1, 1, 1, 1),
     return_view=False,
     size=0.5,
     plot_main_axis=True,
@@ -95,7 +95,5 @@ def plot_color_plc(
     view.camera.scale_factor = scale_factor
     draw_pcl = setting_pcl(view=view)
     draw_pcl(points, edge_color=color, size=size)
-    if not return_view:
-        vispy.app.run()
-    else:
-        return view
+    vispy.app.run()
+    

@@ -17,8 +17,8 @@ class SphericalCamera:
         self.default_bearings = uv2xyz(self.default_pixel, self.shape)
 
     def project_pcl_from_depth_and_rgb_maps(self, color_map, depth_map, scaler=1):
-        from mvl_challenge.utils.image_utils import get_color_array
-
+        from geometry_perception_utils.image_utils import get_color_array
+        
         color_pixels = get_color_array(color_map=color_map) / 255
         mask = depth_map.flatten() > 0
         pcl = (
@@ -160,18 +160,29 @@ def xyz2uv(xyz, shape=(512, 1024)):
     """
     Projects XYZ array into uv coord
     """
+    
+    theta_coord, phi_coords = xyz2sph(xyz)
+    
+    u = np.clip(
+        np.floor((0.5 * theta_coord / np.pi + 0.5) * shape[1] + 0.5), 0, shape[1] - 1
+    )
+    v = np.clip(np.floor((phi_coords / np.pi + 0.5) * shape[0] + 0.5), 0, shape[0] - 1)
+    return np.vstack((u, v)).astype(int)
+
+
+def xyz2sph(xyz):
     xyz_n = xyz / np.linalg.norm(xyz, axis=0, keepdims=True)
 
     normXZ = np.linalg.norm(xyz[(0, 2), :], axis=0, keepdims=True)
 
     phi_coords = np.arcsin(xyz_n[1, :])
     theta_coord = np.sign(xyz[0, :]) * np.arccos(xyz[2, :] / normXZ)
+    return theta_coord, phi_coords
 
-    u = np.clip(
-        np.floor((0.5 * theta_coord / np.pi + 0.5) * shape[1] + 0.5), 0, shape[1] - 1
-    )
-    v = np.clip(np.floor((phi_coords / np.pi + 0.5) * shape[0] + 0.5), 0, shape[0] - 1)
-    return np.vstack((u, v)).astype(int)
+
+def xyz2phi_coords(xyz, shape=(512, 1024)):
+    _, phi_coords = xyz2sph(xyz)
+    return phi_coords
 
 
 def phi_coord2boundary(phi_coords, shape=(512, 1024)):
