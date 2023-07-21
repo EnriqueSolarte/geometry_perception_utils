@@ -40,11 +40,17 @@ def get_timestamp(format, *, _parent_):
     return _parent_['stamp']
 
 
+def load(input_file, *, _parent_):
+    assert os.path.exists(input_file), f"File does not exist {input_file}"
+    cfg = read_omega_cfg(input_file)
+    return cfg
+
 OmegaConf.register_new_resolver('set_stamp_name', set_stamp_name)
 OmegaConf.register_new_resolver('get_hostname', get_hostname)
 OmegaConf.register_new_resolver('get_git_commit', get_git_commit)
 OmegaConf.register_new_resolver('get_timestamp', get_timestamp)
 OmegaConf.register_new_resolver('get_date', get_date)
+OmegaConf.register_new_resolver('load', load)
 
 
 def get_empty_cfg():
@@ -76,4 +82,10 @@ def read_omega_cfg(cfg_file):
         cfg_dict = yaml.safe_load(f)
 
     cfg = OmegaConf.create(cfg_dict)
+    return cfg
+
+
+def read_cfg(cfg_file):
+    cfg = read_omega_cfg(cfg_file)
+    OmegaConf.resolve(cfg)
     return cfg
