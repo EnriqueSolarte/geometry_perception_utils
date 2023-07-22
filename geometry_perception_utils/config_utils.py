@@ -5,6 +5,7 @@ import yaml
 from omegaconf import OmegaConf
 from coolname import generate_slug
 import datetime
+from pathlib import Path
 
 
 def set_stamp_name(number_names, *, _parent_):
@@ -89,3 +90,24 @@ def read_cfg(cfg_file):
     cfg = read_omega_cfg(cfg_file)
     OmegaConf.resolve(cfg)
     return cfg
+
+
+# ! Registering current git commit 
+def get_repo_version(REPO_DIR):
+    os.chdir(REPO_DIR)
+    repo = git.Repo(search_parent_directories=True)
+    commit = repo.head._get_commit()
+    repo_name = Path(repo.working_dir).stem
+    data ={repo_name:dict(commit=commit.name_rev, message=commit.message)}
+    return data 
+
+# def register_dependencies(fn, list_repo_versions):
+#     if os.path.exists(fn):
+#         with open(fn, "r") as f:
+#             dep = yaml.safe_load(f)
+        
+#     else:
+#         for versions in list_repo_versions:
+#             dep[function.__module__] = function()
+#         dep = {vers: v for vers in list_repo_versions.items()}
+#     yaml.dump(dep, open(fn, 'w'))
