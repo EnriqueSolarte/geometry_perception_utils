@@ -92,6 +92,13 @@ def read_cfg(cfg_file):
     return cfg
 
 
+def merge_cfg(list_cfg):
+    cfg = {}
+    for c in list_cfg:
+        cfg = {**cfg, **c}
+    return OmegaConf.merge(cfg, cfg)
+
+
 # ! Registering current git commit 
 def get_repo_version(REPO_DIR):
     os.chdir(REPO_DIR)
@@ -101,13 +108,3 @@ def get_repo_version(REPO_DIR):
     data ={repo_name:dict(commit=commit.name_rev, message=commit.message)}
     return data 
 
-# def register_dependencies(fn, list_repo_versions):
-#     if os.path.exists(fn):
-#         with open(fn, "r") as f:
-#             dep = yaml.safe_load(f)
-        
-#     else:
-#         for versions in list_repo_versions:
-#             dep[function.__module__] = function()
-#         dep = {vers: v for vers in list_repo_versions.items()}
-#     yaml.dump(dep, open(fn, 'w'))
