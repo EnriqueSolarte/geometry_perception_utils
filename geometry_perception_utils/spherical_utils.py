@@ -3,6 +3,7 @@ from scipy.interpolate import interp1d
 from scipy.interpolate import RegularGridInterpolator
 import numpy as np
 from multiprocessing.pool import ThreadPool
+from geometry_perception_utils.vispy_utils.vispy_utils import plot_list_pcl
 
 class SphericalCamera:
     def __init__(self, shape):
@@ -24,13 +25,13 @@ class SphericalCamera:
         assert xyz.shape[0] == 3, "xyz must be a 3xN array"    
         theta_coords, phi_coords= xyz2sph(xyz)
         
-        r = np.pi / self.shape[1]
+        r = 0.5 * np.pi / self.shape[1]
         def map_phi_coords(theta):
             idx = np.where(abs(theta_coords - theta) < r)[0]
             if xyz_type == "floor":
-                phi = phi_coords[idx].min()
-            if xyz_type == "ceiling":
                 phi = phi_coords[idx].max()
+            if xyz_type == "ceiling":
+                phi = phi_coords[idx].min()
             return theta, phi   
         
         # pool = ThreadPool(4)
