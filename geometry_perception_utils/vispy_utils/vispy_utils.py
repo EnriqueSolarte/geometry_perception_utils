@@ -9,6 +9,8 @@ import sys
 from matplotlib.colors import hsv_to_rgb
 import vispy.io as vispy_file
 import os
+import imageio
+
 
 
 def plot_list_pcl(list_pcl, size=1, scale_factor=15):
@@ -18,7 +20,7 @@ def plot_list_pcl(list_pcl, size=1, scale_factor=15):
     for pcl, c in zip(list_pcl, colors.T):
         pcl_colors.append(np.ones_like(pcl)*c.reshape(3, 1))
 
-    plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor)
+    return plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor)
 
 
 def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_colors=None):
@@ -29,7 +31,7 @@ def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_color
         number_of_colors = len(array_colors)
 
     h = np.linspace(0.1, 0.8, number_of_colors)
-    np.random.shuffle(h)
+    # np.random.shuffle(h)
     # values = np.linspace(0, np.pi, number_of_colors)
     colors = np.ones((3, number_of_colors))
 
@@ -38,7 +40,7 @@ def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_color
     return hsv_to_rgb(colors.T).T
 
 
-def setting_viewer(return_canvas=False, main_axis=True, bgcolor="black", caption=""):
+def setting_viewer(main_axis=True, bgcolor="black", caption=""):
     canvas = vispy.scene.SceneCanvas(keys="interactive", show=True, bgcolor=bgcolor)
     size_win = 1024
     canvas.size = 2 * size_win, size_win
@@ -53,9 +55,7 @@ def setting_viewer(return_canvas=False, main_axis=True, bgcolor="black", caption
     if main_axis:
         visuals.XYZAxis(parent=view.scene)
 
-    if return_canvas:
-        return view, canvas
-    return view
+    return view, canvas
 
 
 def setting_pcl(view, size=5, edge_width=2, antialias=0):
@@ -75,15 +75,15 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
 def plot_color_plc(
     points,
     color=(0, 0, 0, 1),
-    return_view=False,
     size=0.5,
     plot_main_axis=True,
-    background="white",
+    background="black",
     scale_factor=15,
     caption="",
+    fn=None,
 ):
 
-    view = setting_viewer(main_axis=plot_main_axis, bgcolor=background, caption=caption)
+    view, canvas= setting_viewer(main_axis=plot_main_axis, bgcolor=background, caption=caption)
     view.camera = vispy.scene.TurntableCamera(
         elevation=90, azimuth=90, roll=0, fov=0, up="-y"
     )
@@ -95,5 +95,7 @@ def plot_color_plc(
     view.camera.scale_factor = scale_factor
     draw_pcl = setting_pcl(view=view)
     draw_pcl(points, edge_color=color, size=size)
+    # if fn is not None:
+    #     vispy_file.write_png(fn, canvas.render())
     vispy.app.run()
-    
+    return canvas.render()
