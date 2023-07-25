@@ -101,9 +101,9 @@ def sph2xyz(sph):
     theta = sph[:, 0]
     phi = sph[:, 1]
 
-    x = math.cos(phi) * math.sin(theta)
-    y = math.sin(phi)
-    z = math.cos(phi) * math.cos(theta)
+    x = np.cos(phi) * np.sin(theta)
+    y = np.sin(phi)
+    z = np.cos(phi) * np.cos(theta)
 
     return np.vstack((x, y, z))
 
