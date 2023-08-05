@@ -74,7 +74,7 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
 
 def plot_color_plc(
     points,
-    color=(0, 0, 0, 1),
+    color=(1, 1, 1, 1),
     size=0.5,
     plot_main_axis=True,
     background="black",

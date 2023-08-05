@@ -17,8 +17,8 @@ class SphericalCamera:
         uu, vv = np.meshgrid(u, v)
         self.default_pixel = np.vstack((uu.flatten(), vv.flatten())).astype(np.int)
         self.default_bearings = uv2xyz(self.default_pixel, self.shape)
-        r = np.pi / w
-        self.theta_range = np.linspace(-np.pi+r, np.pi-r, w)
+        self.theta_range = np.linspace(-np.pi, np.pi-2*np.pi / w, w)
+        
 
     def xyz2phi_coords(self, xyz, xyz_type="floor"):
         assert xyz_type in ["floor", "ceiling"], "xyz_type must be either floor or ceiling"
@@ -26,7 +26,7 @@ class SphericalCamera:
         theta_coords, phi_coords= xyz2sph(xyz)
         
         r = 0.5 * np.pi / self.shape[1]
-        def map_phi_coords(theta):
+        def mapping(theta):
             idx = np.where(abs(theta_coords - theta) < r)[0]
             if xyz_type == "floor":
                 phi = phi_coords[idx].max()
@@ -37,7 +37,7 @@ class SphericalCamera:
         # pool = ThreadPool(4)
         sph_coords =[
             # pool.apply_async(map_phi_coords, (theta,))
-            map_phi_coords(theta)
+            mapping(theta)
             for theta in  self.theta_range
         ]
         # sph_coords = [thread.get() for thread in list_threads]
@@ -45,14 +45,8 @@ class SphericalCamera:
         return np.vstack(sph_coords).T[1, :]
           
     def phi_coords2xyz(self, phi_coords):
-        assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
+        return phi_coords2xyz(phi_coords, self.theta_range)
         
-        x = np.cos(phi_coords) * np.sin(self.theta_range)
-        y = np.sin(phi_coords)
-        z = np.cos(phi_coords) * np.cos(self.theta_range)
-
-        return np.vstack((x, y, z))
-    
     def xyz2uv(self, pcl):
         pass
     
@@ -140,3 +134,12 @@ def xyz2uv(xyz, shape=(512, 1024)):
     v = np.clip(np.floor((phi_coord / np.pi + 0.5) * shape[0]), 0, shape[0] - 1)
     return np.vstack((u, v)).astype(int)
 
+
+def phi_coords2xyz(phi_coords, theta_coords):
+    assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
+    
+    x = np.cos(phi_coords) * np.sin(theta_coords)
+    y = np.sin(phi_coords)
+    z = np.cos(phi_coords) * np.cos(theta_coords)
+
+    return np.vstack((x, y, z))
