@@ -78,7 +78,7 @@ def plot_color_plc(
     size=0.5,
     plot_main_axis=True,
     background="black",
-    scale_factor=15,
+    scale_factor=100,
     caption="",
     fn=None,
 ):
@@ -98,4 +98,4 @@ def plot_color_plc(
     # if fn is not None:
     #     vispy_file.write_png(fn, canvas.render())
     vispy.app.run()
-    return canvas.render()
+    # return canvas.render()

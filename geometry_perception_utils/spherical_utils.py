@@ -4,6 +4,8 @@ from scipy.interpolate import RegularGridInterpolator
 import numpy as np
 from multiprocessing.pool import ThreadPool
 from geometry_perception_utils.vispy_utils.vispy_utils import plot_list_pcl
+from scipy import interpolate
+
 
 class SphericalCamera:
     def __init__(self, shape):
@@ -15,55 +17,82 @@ class SphericalCamera:
         u = np.linspace(0, w - 1, w).astype(int) + 0.5
         v = np.linspace(0, h - 1, h).astype(int) + 0.5
         uu, vv = np.meshgrid(u, v)
-        self.default_pixel = np.vstack((uu.flatten(), vv.flatten())).astype(np.int)
+        self.default_pixel = np.vstack(
+            (uu.flatten(), vv.flatten())).astype(np.int)
         self.default_bearings = uv2xyz(self.default_pixel, self.shape)
-        self.theta_range = np.linspace(-np.pi, np.pi-2*np.pi / w, w)
-        
+        self.theta_range = np.linspace(-np.pi, np.pi - 2 * np.pi / w, w)
 
     def xyz2phi_coords(self, xyz, xyz_type="floor"):
-        assert xyz_type in ["floor", "ceiling"], "xyz_type must be either floor or ceiling"
-        assert xyz.shape[0] == 3, "xyz must be a 3xN array"    
-        theta_coords, phi_coords= xyz2sph(xyz)
-        
-        r = 0.5 * np.pi / self.shape[1]
+        assert xyz_type in ["floor", "ceiling"
+                            ], "xyz_type must be either floor or ceiling"
+        assert xyz.shape[0] == 3, "xyz must be a 3xN array"
+        theta_coords, phi_coords = xyz2sph(xyz)
+
+        r = np.pi / self.shape[1]
+
         def mapping(theta):
             idx = np.where(abs(theta_coords - theta) < r)[0]
+            # error = abs(theta_coords - theta)
+            # idx = np.argmin(error)
             if xyz_type == "floor":
                 phi = phi_coords[idx].max()
             if xyz_type == "ceiling":
                 phi = phi_coords[idx].min()
-            return theta, phi   
-        
+            return theta, phi
+
         # pool = ThreadPool(4)
-        sph_coords =[
+        sph_coords = [
             # pool.apply_async(map_phi_coords, (theta,))
-            mapping(theta)
-            for theta in  self.theta_range
+            mapping(theta) for theta in self.theta_range
         ]
         # sph_coords = [thread.get() for thread in list_threads]
-            
+
         return np.vstack(sph_coords).T[1, :]
-          
+
     def phi_coords2xyz(self, phi_coords):
         return phi_coords2xyz(phi_coords, self.theta_range)
+
+    def xyz2uv(self, pcl, xyz_type="floor"):
+        theta_coords, phi_coords = xyz2sph(pcl)
         
-    def xyz2uv(self, pcl):
-        pass
-    
-    def get_color_pcl_from_depth_and_rgb_maps(self, color_map, depth_map, scaler=1):
+        r = np.pi / self.shape[1]
+
+        def mapping(theta):
+            idx = np.where(abs(theta_coords - theta) < r)[0]
+            # error = abs(theta_coords - theta)
+            # idx = np.argmin(error)
+            if idx.size == 0:
+                return -1, -1
+            if xyz_type == "floor":
+                phi = phi_coords[idx].max()
+            if xyz_type == "ceiling":
+                phi = phi_coords[idx].min()
+            return theta, phi
+        
+        sph_coords = [
+            mapping(theta) for theta in self.theta_range
+        ]
+        sph_coords = [v for v in sph_coords if v[0]!= -1]
+        
+
+        return np.vstack(sph_coords).T[1, :]
+
+        
+    def get_color_pcl_from_depth_and_rgb_maps(self,
+                                              color_map,
+                                              depth_map,
+                                              scaler=1):
         from geometry_perception_utils.image_utils import get_color_array
-        
+
         color_pixels = get_color_array(color_map=color_map) / 255
         mask = depth_map.flatten() > 0
-        pcl = (
-            self.default_bearings[:, mask]
-            * scaler
-            * get_color_array(color_map=depth_map)[0][mask]
-        )
+        pcl = (self.default_bearings[:, mask] * scaler *
+               get_color_array(color_map=depth_map)[0][mask])
         return pcl, color_pixels[:, mask]
 
+
 # ! ok
-def uv2xyz(uv, shape):
+def uv2xyz(uv, shape=(512, 1024)):
     """
     Projects uv vectors to xyz vectors (bearing vector)
     """
@@ -77,7 +106,8 @@ def uv2xyz(uv, shape):
 
     return np.vstack((x, y, z))
 
-# ! ok 
+
+# ! ok
 def uv2sph(uv, shape):
     """
     Projects a set of uv points into spherical coordinates (theta, phi)
@@ -92,8 +122,8 @@ def sph2xyz(sph):
     """
     Projects spherical coordinates (theta, phi) to euclidean space xyz
     """
-    theta = sph[:, 0]
-    phi = sph[:, 1]
+    theta = sph[0, :]
+    phi = sph[1, :]
 
     x = np.cos(phi) * np.sin(theta)
     y = np.sin(phi)
@@ -116,7 +146,7 @@ def xyz2sph(xyz):
     theta_coord = np.sign(xyz[0, :]) * np.arccos(xyz[2, :] / normXZ)
     return theta_coord.ravel(), phi_coords.ravel()
 
-    
+
 def xyz2horizon_depth(xyz):
     """
     Returns the horizon depth of a set of xyz coordinates
@@ -130,16 +160,19 @@ def xyz2uv(xyz, shape=(512, 1024)):
     """
     theta_coord, phi_coord = xyz2sph(xyz)
 
-    u = np.clip(np.floor((0.5 * theta_coord / np.pi + 0.5) * shape[1]), 0, shape[1] - 1)
-    v = np.clip(np.floor((phi_coord / np.pi + 0.5) * shape[0]), 0, shape[0] - 1)
+    u = np.clip(np.floor((0.5 * theta_coord / np.pi + 0.5) * shape[1]), 0,
+                shape[1] - 1)
+    v = np.clip(np.floor((phi_coord / np.pi + 0.5) * shape[0]), 0,
+                shape[0] - 1)
     return np.vstack((u, v)).astype(int)
 
 
 def phi_coords2xyz(phi_coords, theta_coords):
     assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
-    
+
     x = np.cos(phi_coords) * np.sin(theta_coords)
     y = np.sin(phi_coords)
     z = np.cos(phi_coords) * np.cos(theta_coords)
 
     return np.vstack((x, y, z))
+

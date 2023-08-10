@@ -227,3 +227,15 @@ def skew_matrix2vector(matrix):
     vector[2] = matrix[1, 0]
 
     return vector
+
+
+def get_rot_matrix_from_two_vectors(src, dst):
+    __src = src / np.linalg.norm(src)
+    __dst = dst / np.linalg.norm(dst)
+    normal = np.cross(src, dst)
+    theta = np.arccos(np.clip(np.dot(__src, __dst), -1.0, 1.0))
+    
+    q = Quaternion(axis=normal, radians=theta)
+    return q.rotation_matrix
+    
+    
