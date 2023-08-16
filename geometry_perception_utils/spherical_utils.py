@@ -22,13 +22,13 @@ class SphericalCamera:
         self.default_bearings = uv2xyz(self.default_pixel, self.shape)
         self.theta_range = np.linspace(-np.pi, np.pi - 2 * np.pi / w, w)
 
-    def xyz2phi_coords(self, xyz, xyz_type="floor"):
+    def xyz2phi_coords(self, xyz, xyz_type="floor", scale_ratio=1.5):
         assert xyz_type in ["floor", "ceiling"
                             ], "xyz_type must be either floor or ceiling"
         assert xyz.shape[0] == 3, "xyz must be a 3xN array"
         theta_coords, phi_coords = xyz2sph(xyz)
 
-        r = np.pi / self.shape[1]
+        r = scale_ratio * np.pi / self.shape[1]
 
         def mapping(theta):
             idx = np.where(abs(theta_coords - theta) < r)[0]
@@ -52,32 +52,11 @@ class SphericalCamera:
     def phi_coords2xyz(self, phi_coords):
         return phi_coords2xyz(phi_coords, self.theta_range)
 
-    def xyz2uv(self, pcl, xyz_type="floor"):
-        theta_coords, phi_coords = xyz2sph(pcl)
-        
-        r = np.pi / self.shape[1]
+    def phi_coords2uv(self, phi_coords):
+        xyz = phi_coords2xyz(phi_coords, self.theta_range)
+        uv = xyz2uv(xyz, self.shape)
+        return uv
 
-        def mapping(theta):
-            idx = np.where(abs(theta_coords - theta) < r)[0]
-            # error = abs(theta_coords - theta)
-            # idx = np.argmin(error)
-            if idx.size == 0:
-                return -1, -1
-            if xyz_type == "floor":
-                phi = phi_coords[idx].max()
-            if xyz_type == "ceiling":
-                phi = phi_coords[idx].min()
-            return theta, phi
-        
-        sph_coords = [
-            mapping(theta) for theta in self.theta_range
-        ]
-        sph_coords = [v for v in sph_coords if v[0]!= -1]
-        
-
-        return np.vstack(sph_coords).T[1, :]
-
-        
     def get_color_pcl_from_depth_and_rgb_maps(self,
                                               color_map,
                                               depth_map,
@@ -175,4 +154,3 @@ def phi_coords2xyz(phi_coords, theta_coords):
     z = np.cos(phi_coords) * np.cos(theta_coords)
 
     return np.vstack((x, y, z))
-

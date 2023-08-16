@@ -6,10 +6,14 @@ from PIL import ImageDraw
 from PIL import ImageFont
 import skimage.filters
 import cv2
+from geometry_perception_utils.spherical_utils import phi_coords2xyz, xyz2uv
 
+COLOR_RED = (255, 0, 0)
 COLOR_GREEN = (0, 255, 0)
 COLOR_MAGENTA = (255, 0, 255)
 COLOR_CYAN = (0, 255, 255)
+COLOR_BLUE = (51, 51, 255)
+
 
 
 def get_color_array(color_map):
@@ -63,8 +67,9 @@ def draw_boundaries_uv(image, boundary_uv, color=(0, 255, 0), size=2):
 
 def draw_boundaries_phi_coords(image, phi_coords, color=(0, 255, 0), size=2):
     # ! Compute bearings
-    bearings_ceiling = phi_coords2xyz(phi_coords=phi_coords[0, :])
-    bearings_floor = phi_coords2xyz(phi_coords=phi_coords[1, :])
+    theta_coords = np.linspace(-np.pi, np.pi, phi_coords.shape[1])
+    bearings_ceiling = phi_coords2xyz(phi_coords=phi_coords[0, :], theta_coords=theta_coords)
+    bearings_floor = phi_coords2xyz(phi_coords=phi_coords[1, :], theta_coords=theta_coords)
 
     uv_ceiling = xyz2uv(bearings_ceiling)
     uv_floor = xyz2uv(bearings_floor)

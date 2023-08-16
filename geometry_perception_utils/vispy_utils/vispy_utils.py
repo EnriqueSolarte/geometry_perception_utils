@@ -9,18 +9,18 @@ import sys
 from matplotlib.colors import hsv_to_rgb
 import vispy.io as vispy_file
 import os
-import imageio
+from imageio import imwrite
 
 
 
-def plot_list_pcl(list_pcl, size=1, scale_factor=15):
+def plot_list_pcl(list_pcl, size=1, scale_factor=15, fn=None, return_png=False):
 
     colors = get_color_list(number_of_colors=list_pcl.__len__())
     pcl_colors = []
     for pcl, c in zip(list_pcl, colors.T):
         pcl_colors.append(np.ones_like(pcl)*c.reshape(3, 1))
 
-    return plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor)
+    return plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor, fn=fn, return_png=return_png)
 
 
 def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_colors=None):
@@ -81,6 +81,7 @@ def plot_color_plc(
     scale_factor=100,
     caption="",
     fn=None,
+    return_png=False,
 ):
 
     view, canvas= setting_viewer(main_axis=plot_main_axis, bgcolor=background, caption=caption)
@@ -95,7 +96,9 @@ def plot_color_plc(
     view.camera.scale_factor = scale_factor
     draw_pcl = setting_pcl(view=view)
     draw_pcl(points, edge_color=color, size=size)
-    # if fn is not None:
-    #     vispy_file.write_png(fn, canvas.render())
+    if return_png:
+        return canvas.render()
+    if fn is not None:
+        imwrite(fn, canvas.render())
     vispy.app.run()
     # return canvas.render()
