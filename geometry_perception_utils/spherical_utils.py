@@ -146,9 +146,11 @@ def xyz2uv(xyz, shape=(512, 1024)):
     return np.vstack((u, v)).astype(int)
 
 
-def phi_coords2xyz(phi_coords, theta_coords):
+def phi_coords2xyz(phi_coords, theta_coords=None):
     assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
 
+    if theta_coords is None:
+        theta_coords = np.linspace(-np.pi, np.pi - 2 * np.pi / 1024, 1024)
     x = np.cos(phi_coords) * np.sin(theta_coords)
     y = np.sin(phi_coords)
     z = np.cos(phi_coords) * np.cos(theta_coords)

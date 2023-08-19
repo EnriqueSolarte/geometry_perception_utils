@@ -10,6 +10,7 @@ import dill
 import numpy as np
 from plyfile import PlyData
 from pyquaternion import Quaternion
+from multiprocessing.pool import ThreadPool
 
 
 
@@ -223,3 +224,15 @@ def check_existence_in_list_fn(list_fn):
     else:
         print(f"Missing files: {np.asarray(list_fn)[np.logical_not(check)]}")
         return False
+    
+
+
+def check_file_exist(list_files, ext):
+    pool = ThreadPool(processes=10)
+    list_threads = []
+    for fn in list_files:
+        list_threads.append(pool.apply_async(os.path.isfile, (f"{fn}.{ext}",)))
+    local_data = []
+    for thread in tqdm(list_threads):
+        local_data.append(thread.get())
+    return local_data

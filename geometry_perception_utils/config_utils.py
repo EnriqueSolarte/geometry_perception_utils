@@ -6,6 +6,8 @@ from omegaconf import OmegaConf
 from coolname import generate_slug
 import datetime
 from pathlib import Path
+from hydra.core.hydra_config import HydraConfig
+
 
 
 def set_stamp_name(number_names, *, _parent_):
@@ -22,6 +24,8 @@ def get_date(format=0, *, _parent_):
         return datetime.datetime.now().strftime("%d-%b-%Y")
     elif format == 3:
         return datetime.datetime.now().strftime("%y%m%d.%H%M%S")
+    elif format == 4:
+        return datetime.datetime.now().strftime("%y_%m_%d")
     else:
         return datetime.datetime.now().strftime("%Y-%m-%d")
 
@@ -108,3 +112,7 @@ def get_repo_version(REPO_DIR):
     data ={repo_name:dict(commit=commit.name_rev, message=commit.message)}
     return data 
 
+
+def get_hydra_overrides():
+    overrides = HydraConfig.get()['overrides'].get('task', [])
+    return " ".join(overrides)
