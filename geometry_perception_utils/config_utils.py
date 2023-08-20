@@ -44,17 +44,26 @@ def get_timestamp(format, *, _parent_):
     _parent_['stamp'] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     return _parent_['stamp']
 
-
 def load(input_file, *, _parent_):
     assert os.path.exists(input_file), f"File does not exist {input_file}"
     cfg = read_omega_cfg(input_file)
     return cfg
+
+
+def get_hydra_overrides(**args):
+    overrides = HydraConfig.get()['overrides'].get('task', [])
+    overrides = [o for o in overrides if 'cuda' not in o]
+    all_args = "__".join(overrides)
+    all_args = all_args.replace("=", "_")
+    return all_args
+
 
 OmegaConf.register_new_resolver('set_stamp_name', set_stamp_name)
 OmegaConf.register_new_resolver('get_hostname', get_hostname)
 OmegaConf.register_new_resolver('get_git_commit', get_git_commit)
 OmegaConf.register_new_resolver('get_timestamp', get_timestamp)
 OmegaConf.register_new_resolver('get_date', get_date)
+OmegaConf.register_new_resolver('get_hydra_overrides', get_hydra_overrides)
 OmegaConf.register_new_resolver('load', load)
 
 
@@ -112,7 +121,3 @@ def get_repo_version(REPO_DIR):
     data ={repo_name:dict(commit=commit.name_rev, message=commit.message)}
     return data 
 
-
-def get_hydra_overrides():
-    overrides = HydraConfig.get()['overrides'].get('task', [])
-    return " ".join(overrides)
