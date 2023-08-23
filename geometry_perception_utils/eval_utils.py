@@ -34,6 +34,21 @@ def eval_2d3d_iuo(phi_coords_est, phi_coords_gt_bon, ch=1.6):
     # Project bearings into a xz plane, ch: camera height
 
 
+def eval_2d_iou_from_xyz(xyz_ps, xyz_gt):
+    try:
+        est_poly = Polygon(zip(xyz_ps[0], xyz_ps[2]))
+        gt_poly = Polygon(zip(xyz_gt[0], xyz_gt[2]))
+
+        area_dt = est_poly.area
+        area_gt = gt_poly.area
+        area_inter = est_poly.intersection(gt_poly).area
+        iou2d = area_inter / (area_gt + area_dt - area_inter)
+    except:
+        iou2d = 0
+
+    return iou2d
+
+
 def get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor, est_bearing_ceiling,
                  gt_bearing_ceiling):
     est_scale_floor = ch / est_bearing_floor[1, :]

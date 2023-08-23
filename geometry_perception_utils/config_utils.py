@@ -9,7 +9,6 @@ from pathlib import Path
 from hydra.core.hydra_config import HydraConfig
 
 
-
 def set_stamp_name(number_names, *, _parent_):
     _parent_['stamp_name'] = generate_slug(int(number_names))
     return _parent_['stamp_name']
@@ -44,6 +43,7 @@ def get_timestamp(format, *, _parent_):
     _parent_['stamp'] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     return _parent_['stamp']
 
+
 def load(input_file, *, _parent_):
     assert os.path.exists(input_file), f"File does not exist {input_file}"
     cfg = read_omega_cfg(input_file)
@@ -68,10 +68,8 @@ OmegaConf.register_new_resolver('load', load)
 
 
 def get_empty_cfg():
-    logging.basicConfig(
-        format='[%(levelname)s] [%(asctime)s]:  %(message)s',
-        level=logging.INFO
-    )
+    logging.basicConfig(format='[%(levelname)s] [%(asctime)s]:  %(message)s',
+                        level=logging.INFO)
     cfg_dict = dict()
 
     # ! add git commit
@@ -112,12 +110,11 @@ def merge_cfg(list_cfg):
     return OmegaConf.merge(cfg, cfg)
 
 
-# ! Registering current git commit 
+# ! Registering current git commit
 def get_repo_version(REPO_DIR):
     os.chdir(REPO_DIR)
     repo = git.Repo(search_parent_directories=True)
     commit = repo.head._get_commit()
     repo_name = Path(repo.working_dir).stem
-    data ={repo_name:dict(commit=commit.name_rev, message=commit.message)}
-    return data 
-
+    data = {repo_name: dict(commit=commit.name_rev, message=commit.message)}
+    return data
