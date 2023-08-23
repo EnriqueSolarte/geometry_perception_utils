@@ -58,7 +58,7 @@ def create_directory(output_dir, delete_prev=True, ignore_request=False):
     if not os.path.exists(output_dir):
         logging.info(f"Dir created: {output_dir}")
         os.makedirs(output_dir, exist_ok=True)
-    return Path(output_dir).resolve()
+    return Path(output_dir).resolve().__str__()
 
 
 def save_obj(filename, obj):

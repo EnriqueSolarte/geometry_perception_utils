@@ -12,3 +12,5 @@ matplotlib
 shapely
 pyransac3d
 scikit-image
+coolname
+opencv-python

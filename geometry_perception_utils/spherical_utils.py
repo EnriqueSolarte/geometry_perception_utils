@@ -18,7 +18,7 @@ class SphericalCamera:
         v = np.linspace(0, h - 1, h).astype(int) + 0.5
         uu, vv = np.meshgrid(u, v)
         self.default_pixel = np.vstack(
-            (uu.flatten(), vv.flatten())).astype(np.int)
+            (uu.flatten(), vv.flatten())).astype(np.int32)
         self.default_bearings = uv2xyz(self.default_pixel, self.shape)
         self.theta_range = np.linspace(-np.pi, np.pi - 2 * np.pi / w, w)
 
