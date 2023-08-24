@@ -2,6 +2,7 @@ import numpy as np
 from geometry_perception_utils.spherical_utils import xyz2uv
 from geometry_perception_utils.hohonet_utils.vis_utils import layout_2_depth
 
+
 def clip_boundary(boundary, threshold):
     dist = np.linalg.norm(boundary, axis=0)
     mask = dist > threshold
@@ -19,3 +20,11 @@ def ly2depth_from_list_corners(list_corners, camera_height, ceiling_height, shap
     
     depth = layout_2_depth(uv_corners, shape[0], shape[1])
     return depth    
+
+def xyz2bev(xyz, scale=1.0):
+    assert xyz.shape[0] == 3, "xyz must be 3xN"
+    xyz_n = xyz / np.linalg.norm(xyz, axis=0, keepdims=True)
+    ly_scale = scale / xyz_n[1, :]
+    xyz_n = xyz_n * ly_scale
+    xyz_n[1, :] = 0.0
+    return xyz_n
