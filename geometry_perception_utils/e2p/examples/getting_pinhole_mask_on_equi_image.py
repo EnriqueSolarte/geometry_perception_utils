@@ -11,7 +11,7 @@ if __name__ == "__main__":
     out_hw = (512, 1024) # output equirectangular image size
     """
     
-    img = pinhole_mask_on_equirectangular(u_deg=45, v_deg=45, out_hw=(512, 1024)) 
+    img = pinhole_mask_on_equirectangular(u_deg=0, v_deg=0, out_hw=(512, 1024)) 
     fn = f"{Path(__file__).parent.__str__()}/pinhole_mask.jpg"
     imwrite(f'{fn}', img)
     print(img.shape)
