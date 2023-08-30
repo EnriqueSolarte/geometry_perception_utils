@@ -1,5 +1,6 @@
 
 from geometry_perception_utils.e2p import pinhole_mask_on_equirectangular
+from geometry_perception_utils.io_utils import create_directory
 from  imageio import imwrite
 from pathlib import Path  
 
@@ -10,12 +11,17 @@ if __name__ == "__main__":
     v_deg=0 # pitch angle of the perspective camera
     out_hw = (512, 1024) # output equirectangular image size
     """
-    
-    img = pinhole_mask_on_equirectangular(u_deg=0, v_deg=0, out_hw=(512, 1024)) 
-    fn = f"{Path(__file__).parent.__str__()}/pinhole_mask.jpg"
-    imwrite(f'{fn}', img)
-    print(img.shape)
-    
+    idx = 0
+    vis_dir = create_directory(f"{Path(__file__).parent.__str__()}/vis")
+            
+    for theta in range(-180, 180, 45):
+        for phi in range(-45, 45, 10):
+            
+            img = pinhole_mask_on_equirectangular(u_deg=theta, v_deg=phi, out_hw=(512, 1024)) 
+            fn = f"{vis_dir}/pinhole_mask_on_equirectangular_{idx}.png"
+            imwrite(f'{fn}', img)
+            idx += 1
+            
     
 
     
