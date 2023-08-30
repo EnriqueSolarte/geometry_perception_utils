@@ -16,9 +16,11 @@ def pinhole_mask_on_equirectangular(u_deg=0, v_deg=0, out_hw=(512, 1024), model=
     orig_vector = np.array([0, 0, 1])
     sph_coord = np.array([0, np.deg2rad(v_deg)]).reshape(2, 1)
     dst_vector = sph2xyz(sph_coord)
-    
-    rot = get_rot_matrix_from_two_vectors(orig_vector.ravel(), dst_vector.ravel())
-    
+    if v_deg != 0:
+        rot = get_rot_matrix_from_two_vectors(orig_vector.ravel(), dst_vector.ravel())
+    else:
+        rot = np.eye(3)
+        
     xyz = rot @ xyz
     
     uv = xyz2uv(xyz, out_hw)
