@@ -249,7 +249,12 @@ def e2p(e_img, fov_deg, u_deg, v_deg, out_hw, in_rot_deg=0, mode="bilinear"):
     u_deg:   horizon viewing angle in range [-180, 180]
     v_deg:   vertical viewing angle in range [-90, 90]
     """
-    assert len(e_img.shape) == 3
+    if len(e_img.shape) == 3:
+        monocular = False
+    else:
+        monocular = True
+        assert len(e_img.shape) == 2
+        
     h, w = e_img.shape[:2]
 
     try:
@@ -272,13 +277,17 @@ def e2p(e_img, fov_deg, u_deg, v_deg, out_hw, in_rot_deg=0, mode="bilinear"):
     uv = xyz2uv(xyz)
     coor_xy = uv2coor(uv, h, w)
 
-    pers_img = np.stack(
-        [
-            sample_equirec(e_img[..., i], coor_xy, order=order)
-            for i in range(e_img.shape[2])
-        ],
-        axis=-1,
-    )
+    if monocular:
+        e_img = np.expand_dims(e_img, axis=-1)
+        pers_img = sample_equirec(e_img[..., 0], coor_xy, order=order)
+    else:
+        pers_img = np.stack(
+            [
+                sample_equirec(e_img[..., i], coor_xy, order=order)
+                for i in range(e_img.shape[2])
+            ],
+            axis=-1,
+        )
 
     return pers_img
 
@@ -331,3 +340,4 @@ def e2p_boundary(e_boundary_map, fov_deg, u_deg, v_deg, out_hw, in_rot_deg=0, mo
             pers_boundary[i] = index
 
     return pers_boundary
+
