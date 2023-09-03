@@ -112,9 +112,19 @@ def merge_cfg(list_cfg):
 
 # ! Registering current git commit
 def get_repo_version(REPO_DIR):
-    os.chdir(REPO_DIR)
+    current_dir = os.getcwd()
+    if os.path.isdir(REPO_DIR):
+        os.chdir(REPO_DIR)
+    else:
+        os.chdir(os.path.dirname(REPO_DIR))
+        
     repo = git.Repo(search_parent_directories=True)
     commit = repo.head._get_commit()
     repo_name = Path(repo.working_dir).stem
     data = {repo_name: dict(commit=commit.name_rev, message=commit.message)}
+    os.chdir(current_dir)
     return data
+
+if __name__ == '__main__':
+    test = get_repo_version(__file__)   
+    print(test)
