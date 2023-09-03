@@ -7,6 +7,7 @@ from coolname import generate_slug
 import datetime
 from pathlib import Path
 from hydra.core.hydra_config import HydraConfig
+import importlib
 
 
 def set_stamp_name(number_names, *, _parent_):
@@ -58,12 +59,17 @@ def get_hydra_overrides(**args):
     return all_args
 
 
+def get_dependency_versions(module, *, _parent_):
+    func = getattr(importlib.import_module(module, package=None), 'get_dependencies')
+    return func()
+
 OmegaConf.register_new_resolver('set_stamp_name', set_stamp_name)
 OmegaConf.register_new_resolver('get_hostname', get_hostname)
 OmegaConf.register_new_resolver('get_git_commit', get_git_commit)
 OmegaConf.register_new_resolver('get_timestamp', get_timestamp)
 OmegaConf.register_new_resolver('get_date', get_date)
 OmegaConf.register_new_resolver('get_hydra_overrides', get_hydra_overrides)
+OmegaConf.register_new_resolver('get_dependency_versions', get_dependency_versions)
 OmegaConf.register_new_resolver('load', load)
 
 
@@ -80,7 +86,7 @@ def get_empty_cfg():
 
 
 def save_cfg(cfg_file, cfg):
-    # OmegaConf.resolve(cfg)
+    OmegaConf.resolve(cfg)
     # cfg_ = get_resolved_cfg(cfg)
     with open(cfg_file, 'w') as fn:
         OmegaConf.save(config=cfg, f=fn)
@@ -121,7 +127,7 @@ def get_repo_version(REPO_DIR):
     repo = git.Repo(search_parent_directories=True)
     commit = repo.head._get_commit()
     repo_name = Path(repo.working_dir).stem
-    data = {repo_name: dict(commit=commit.name_rev, message=commit.message)}
+    data = f"{repo_name}: {commit.name_rev}"
     os.chdir(current_dir)
     return data
 
