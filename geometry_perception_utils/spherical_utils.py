@@ -145,6 +145,16 @@ def xyz2uv(xyz, shape=(512, 1024)):
                 shape[0] - 1)
     return np.vstack((u, v)).astype(int)
 
+def sph2uv(sph_coords, shape=(512, 1024)):
+    theta_coord = sph_coords[0, :]
+    theta_coord = sph_coords[1, :]
+    u = np.clip(np.floor((0.5 * theta_coord / np.pi + 0.5) * shape[1]), 0,
+                shape[1] - 1)
+    v = np.clip(np.floor((theta_coord / np.pi + 0.5) * shape[0]), 0,
+                shape[0] - 1)    
+    return np.vstack((u, v)).astype(int)
+
+    
 
 def phi_coords2xyz(phi_coords, theta_coords=None):
     assert phi_coords.size == 1024, "phi_coords must be a 1024 array"

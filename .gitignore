@@ -17,3 +17,4 @@ assets/
 *tmp*
 result/
 *output*/
+*vis*/

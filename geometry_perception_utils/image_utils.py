@@ -7,6 +7,8 @@ from PIL import ImageFont
 import skimage.filters
 import cv2
 from geometry_perception_utils.spherical_utils import phi_coords2xyz, xyz2uv
+from skimage.transform import rescale, resize, downscale_local_mean
+
 
 COLOR_RED = (255, 0, 0)
 COLOR_GREEN = (0, 255, 0)
@@ -88,14 +90,14 @@ def draw_boundaries_phi_coords(image, phi_coords, color=(0, 255, 0), size=2):
 
 def draw_boundaries_xyz(image, xyz, color=(0, 255, 0), size=2):
     uv = xyz2uv(xyz)
-    draw_boundaries_uv(image, uv, color, size)
+    return draw_boundaries_uv(image, uv, color, size)
 
 
-def add_caption_to_image(image, caption):
+def add_caption_to_image(image, caption, position=(20, 20)):
     img_obj = Image.fromarray(image)
     img_draw = ImageDraw.Draw(img_obj)
     font_obj = ImageFont.truetype("FreeMono.ttf", 20)
-    img_draw.text((20, 20), f"{caption}", font=font_obj, fill=(255, 0, 0))
+    img_draw.text(position, f"{caption}", font=font_obj, fill=(255, 0, 0))
     return np.array(img_obj)
 
 
@@ -129,3 +131,22 @@ def draw_uncertainty_map(sigma_boundary, peak_boundary, shape=(512, 1024)):
 
     img_map = img_map / img_map.max()
     return img_map
+
+
+def hmerge_list_images(list_images):
+    min_h = np.min([img.shape[0] for img in list_images])
+    scales = [min_h/img.shape[0] for img in list_images]
+    __images = []
+    for img, sc in zip(list_images, scales):
+        resize_img = rescale(img, scale=sc, anti_aliasing=True, multichannel=True)
+        __images.append(resize_img)
+    return np.hstack(__images)
+
+def vmerge_list_images(list_images):
+    min_w = np.min([img.shape[1] for img in list_images])
+    scales = [min_w/img.shape[0] for img in list_images]
+    __images = []
+    for img, sc in zip(list_images, scales):
+        resize_img = rescale(img, scale=sc, anti_aliasing=True, multichannel=True)
+        __images.append(resize_img)
+    return np.vstack(__images)
