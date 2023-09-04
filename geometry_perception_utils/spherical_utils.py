@@ -160,6 +160,9 @@ def phi_coords2xyz(phi_coords, theta_coords=None):
     assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
 
     if theta_coords is None:
+        # due to circularity, we cannot define from -pi to pi
+        # -pi and pi are the same point
+        # we need to define from -pi to pi - 2pi/1024
         theta_coords = np.linspace(-np.pi, np.pi - 2 * np.pi / 1024, 1024)
     x = np.cos(phi_coords) * np.sin(theta_coords)
     y = np.sin(phi_coords)

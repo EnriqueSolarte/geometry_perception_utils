@@ -15,6 +15,7 @@ def compute_weighted_L1(y_est, y_ref, std, min_std=1E-2):
 
 
 def eval_2d3d_iuo_from_tensors(est_bon, gt_bon, losses, ch=1):
+    # Data [batch, 2, 1024]
     est_bearing_ceiling = phi_coords2xyz(est_bon[:, 0, :].squeeze())
     est_bearing_floor = phi_coords2xyz(est_bon[:, 1, :].squeeze())
     gt_bearing_ceiling = phi_coords2xyz(gt_bon[:, 0, :].squeeze())
@@ -24,7 +25,7 @@ def eval_2d3d_iuo_from_tensors(est_bon, gt_bon, losses, ch=1):
                                 est_bearing_ceiling, gt_bearing_ceiling)
     
     if not ret:
-        logging.warning("2D/3D IoU evalaution skipt @ eval_2d3d_iuo_from_tensors() ")
+        logging.warning("2D/3D IoU evaluation skipped @ eval_2d3d_iuo_from_tensors() ")
         return
     
     losses["2DIoU"].append(iou2d)
@@ -62,32 +63,47 @@ def eval_2d_iou_from_xyz(xyz_ps, xyz_gt):
 def get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor, est_bearing_ceiling,
                  gt_bearing_ceiling):
     try:
-        est_scale_floor = ch / est_bearing_floor[1, :]
-        est_pcl_floor = est_scale_floor * est_bearing_floor
-
         gt_scale_floor = ch / gt_bearing_floor[1, :]
         gt_pcl_floor = gt_scale_floor * gt_bearing_floor
-
-        # Calculate height
-        est_scale_ceiling = est_pcl_floor[2] / est_bearing_ceiling[2]
-        est_pcl_ceiling = est_scale_ceiling * est_bearing_ceiling
-        est_h = abs(est_pcl_ceiling[1, :].mean() - ch)
-
-        gt_scale_ceiling = gt_pcl_floor[2] / gt_bearing_ceiling[2]
+        
+        # To ensure that xz coord for both floor and ceiling are the same
+        xz_gt_floor = np.linalg.norm(gt_pcl_floor[[0, 2], :], axis=0)
+        xz_gt_ceiling = np.linalg.norm(gt_bearing_ceiling[[0, 2], :], axis=0)
+        
+        gt_scale_ceiling = xz_gt_floor / xz_gt_ceiling
         gt_pcl_ceiling = gt_scale_ceiling * gt_bearing_ceiling
         gt_h = abs(gt_pcl_ceiling[1, :].mean() - ch)
         
-        est_poly = Polygon(zip(est_pcl_floor[0], est_pcl_floor[2]))
         gt_poly = Polygon(zip(gt_pcl_floor[0], gt_pcl_floor[2]))
-    except:
-        return np.nan, np.nan, False
+    except Exception as e:
+        logging.warning("__file__: %s", __file__)
+        logging.warning("Error by projecting Estimated data as Layout Polygon.")
+        logging.exception(f"{e}")
+        raise ValueError("Error by projecting GT data as Layout Polygon.")
 
     if not gt_poly.is_valid:
-        logging.warning("GT Plygon defined an invalid geoemtry.")
-        logging.warning("2D/3D IoU evalaution skipt...")
         logging.warning("__file__: %s", __file__)
-        return np.nan, np.nan, False
+        logging.error("GT Layout Polygon is invalid")
+        raise ValueError("GT Layout Polygon is invalid.")
 
+    try:
+        # floor
+        est_scale_floor = ch / est_bearing_floor[1, :]
+        est_pcl_floor = est_scale_floor * est_bearing_floor
+        # To ensure that xz coord for both floor and ceiling are the same
+        xz_est_floor = np.linalg.norm(est_pcl_floor[[0, 2], :], axis=0)
+        xz_est_ceiling = np.linalg.norm(est_bearing_ceiling[[0, 2], :], axis=0)
+       
+        est_scale_ceiling = xz_est_floor / xz_est_ceiling
+        est_pcl_ceiling = est_scale_ceiling * est_bearing_ceiling
+        est_h = abs(est_pcl_ceiling[1, :].mean() - ch)
+        est_poly = Polygon(zip(est_pcl_floor[0], est_pcl_floor[2]))
+    except Exception as e:
+        logging.warning("__file__: %s", __file__)
+        logging.error("Error by projecting GT data as Layout Polygon.")
+        logging.exception(f"{e}")
+        return 0, 0, True
+        
     # 2D IoU
     try:
         area_dt = est_poly.area
