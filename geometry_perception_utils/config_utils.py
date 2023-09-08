@@ -85,11 +85,14 @@ def get_empty_cfg():
     return cfg
 
 
-def save_cfg(cfg_file, cfg):
+def save_cfg(cfg, cfg_file=None):
+    if cfg_file is None:
+        cfg_file = os.path.join(cfg.log_dir, "cfg.yaml")
+
     OmegaConf.resolve(cfg)
-    # cfg_ = get_resolved_cfg(cfg)
     with open(cfg_file, 'w') as fn:
         OmegaConf.save(config=cfg, f=fn)
+    logging.info(f"Saved cfg to {cfg_file}")
 
 
 def read_omega_cfg(cfg_file):

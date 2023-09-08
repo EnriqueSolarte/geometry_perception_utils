@@ -71,6 +71,10 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     view.add(scatter)
     return partial(scatter.set_data, size=size, edge_width=edge_width)
 
+def compute_scale_factor(points, factor=5):
+    distances = np.linalg.norm(points, axis=1)
+    max_size = np.quantile(distances, 0.8)
+    return factor * max_size
 
 def plot_color_plc(
     points,
@@ -93,6 +97,7 @@ def plot_color_plc(
     #                                           roll=0,
     #                                           fov=0,
     #                                           up='-y')
+    scale_factor = compute_scale_factor(points)
     view.camera.scale_factor = scale_factor
     draw_pcl = setting_pcl(view=view)
     draw_pcl(points, edge_color=color, size=size)
