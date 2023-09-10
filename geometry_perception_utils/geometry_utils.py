@@ -174,6 +174,7 @@ def eulerAnglesToRotationMatrix(angles):
     )
 
     R = np.dot(R_z, np.dot(R_y, R_x))
+    R =  R_x @ R_y @ R_z
     return R
 
 
@@ -238,4 +239,71 @@ def get_rot_matrix_from_two_vectors(src, dst):
     q = Quaternion(axis=normal, radians=theta)
     return q.rotation_matrix
     
+
+def approxRotationMatrix(SE3_matrix):
+    '''
+    :param T: 4x4 3x4 matrix
+    :return: T as SE3
+    '''
+    assert SE3_matrix.shape[1] == 4
+
+    R = SE3_matrix[0:3, 0:3]
+    t = SE3_matrix[0:3, 3]
+
+    if np.linalg.det(R) < 0:
+        R = -R
+        t = -t
+
+    U, D, V = np.linalg.svd(R)
+    scale = np.sum(D) / 3
+
+    R = np.dot(U, np.eye(3))
+    R = np.dot(R, V)
+
+    t = t / scale
     
+    T = np.eye(4)
+    T[0:3, 0:3] = R
+    T[0:3, 3] = t
+    return T
+
+
+def angle_between_vectors(vect_ref, vect):
+    """
+    This function returns the angle between two vectors
+    :return:
+    """
+
+    c = np.dot(vect_ref.T, vect) / (np.linalg.norm(vect_ref) * np.linalg.norm(vect))
+    angle = np.arccos(np.clip(c, -1, 1))
+
+    return angle
+
+
+def evaluate_error_in_transformation(transform_est,
+                                     transform_gt,
+                                     degrees=True):
+    """
+    Return the angular error in rotation and translation as the error angle between two vector
+    for both rotation and translation
+    Ref:
+    Fathian, et.al. (RAL 2018). QuEst: A Quaternion-Based Approach for Camera.
+    Huynh, D. Q. (2009). Metrics for 3D Rotations: Comparison and Analysis.
+    """
+    assert transform_est.shape == transform_gt.shape == (4, 4)
+    # ! Error in rotation
+
+    error = 0.5 * (np.trace(transform_gt[0:3, 0:3].T.dot(
+        transform_est[0:3, 0:3])) - 1)
+    rot_err = np.arccos(np.clip(error, -1, 1)) / np.pi
+
+    # ! Error in translation
+    trans_err = angle_between_vectors(transform_gt[0:3, 3],
+                                      transform_est[0:3, 3]) / np.pi
+    
+    dist_err = np.linalg.norm(transform_gt[0:3, 3] - transform_est[0:3, 3])
+    
+    if degrees:
+        return np.degrees(rot_err), np.degrees(trans_err), dist_err
+    else:
+        return np.abs(rot_err), np.abs(trans_err), dist_err
