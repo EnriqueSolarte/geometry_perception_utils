@@ -97,7 +97,7 @@ def add_caption_to_image(image, caption, position=(20, 20)):
     img_obj = Image.fromarray(image)
     img_draw = ImageDraw.Draw(img_obj)
     font_obj = ImageFont.truetype("FreeMono.ttf", 20)
-    img_draw.text(position, f"{caption}", font=font_obj, fill=(255, 0, 0))
+    img_draw.text((position[1], position[0]), f"{caption}", font=font_obj, fill=(255, 0, 0))
     return np.array(img_obj)
 
 
@@ -138,7 +138,7 @@ def hmerge_list_images(list_images):
     scales = [min_h/img.shape[0] for img in list_images]
     __images = []
     for img, sc in zip(list_images, scales):
-        resize_img = rescale(img, scale=sc, anti_aliasing=True, multichannel=True)
+        resize_img = rescale(img, scale=sc, anti_aliasing=True, channel_axis=True)
         __images.append(resize_img)
     return np.hstack(__images)
 
@@ -147,6 +147,6 @@ def vmerge_list_images(list_images):
     scales = [min_w/img.shape[0] for img in list_images]
     __images = []
     for img, sc in zip(list_images, scales):
-        resize_img = rescale(img, scale=sc, anti_aliasing=True, multichannel=True)
+        resize_img = rescale(img, scale=sc, anti_aliasing=True, channel_axis=True)
         __images.append(resize_img)
     return np.vstack(__images)

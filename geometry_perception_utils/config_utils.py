@@ -8,6 +8,7 @@ import datetime
 from pathlib import Path
 from hydra.core.hydra_config import HydraConfig
 import importlib
+import shutil
 
 
 def set_stamp_name(number_names, *, _parent_):
@@ -85,10 +86,13 @@ def get_empty_cfg():
     return cfg
 
 
-def save_cfg(cfg, cfg_file=None):
+def save_cfg(cfg, script=None, cfg_file=None):
     if cfg_file is None:
         cfg_file = os.path.join(cfg.log_dir, "cfg.yaml")
 
+    if script is not None:
+        shutil.copy(script, os.path.join(cfg.log_dir, os.path.basename(script)))
+    
     OmegaConf.resolve(cfg)
     with open(cfg_file, 'w') as fn:
         OmegaConf.save(config=cfg, f=fn)

@@ -13,7 +13,6 @@ from pyquaternion import Quaternion
 from multiprocessing.pool import ThreadPool
 
 
-
 def save_json_dict(filename, dict_data):
     with open(filename, "w") as outfile:
         json.dump(dict_data, outfile, indent="\t")
@@ -215,7 +214,7 @@ def load_gt_label(fn):
 def print_cfg_information(cfg):
     logging.info(f"Experiment ID: {cfg.id_exp}")
     logging.info(f"Output_dir: {cfg.output_dir}")
-    
+
 
 def check_existence_in_list_fn(list_fn):
     check = [os.path.exists(fn) for fn in list_fn]
@@ -224,7 +223,6 @@ def check_existence_in_list_fn(list_fn):
     else:
         print(f"Missing files: {np.asarray(list_fn)[np.logical_not(check)]}")
         return False
-    
 
 
 def check_file_exist(list_files, ext):
@@ -236,3 +234,7 @@ def check_file_exist(list_files, ext):
     for thread in tqdm(list_threads):
         local_data.append(thread.get())
     return local_data
+
+
+def get_abs_path(file):
+    return os.path.dirname(os.path.abspath(file))
