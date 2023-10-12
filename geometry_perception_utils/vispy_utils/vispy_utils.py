@@ -12,10 +12,27 @@ import os
 from imageio import imwrite
 
 
+def get_vispy_plot(list_xyz, caption=""):
+    from geometry_perception_utils.image_utils import add_caption_to_image
 
-def plot_list_pcl(list_pcl, size=1, scale_factor=None, fn=None, return_png=False, shape=(1024, 1024)):
+    try:
+        img = plot_list_pcl([] + list_xyz, return_png=True, shape=(512, 512))
+        img = add_caption_to_image(img, f"{caption}", position=(20, 20))
+    except:
+        img = np.zeros((512, 512, 3), dtype=np.uint8)
+        img = add_caption_to_image(img, f"{caption}", position=(20, 20))
+        img = add_caption_to_image(
+            img, f"PLOTTING FAILED !!!", position=(50, 20))
+    return img
 
-    colors = get_color_list(number_of_colors=list_pcl.__len__())
+
+def plot_list_pcl(list_pcl, size=1, colors=None, scale_factor=1, fn=None, return_png=False, shape=(1024, 1024)):
+    if colors is not None:
+        colors.__len__() == list_pcl.__len__()
+        colors = np.vstack(colors).T/255
+    
+    else:
+        colors = get_color_list(number_of_colors=list_pcl.__len__())
     pcl_colors = []
     for pcl, c in zip(list_pcl, colors.T):
         pcl_colors.append(np.ones_like(pcl)*c.reshape(3, 1))
@@ -71,9 +88,13 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     view.add(scatter)
     return partial(scatter.set_data, size=size, edge_width=edge_width)
 
-def compute_scale_factor(points, factor=4):
+def compute_scale_factor(points, factor=5):
     distances = np.linalg.norm(points, axis=1)
-    max_size = np.quantile(distances, 0.8)
+    # max_size = np.quantile(distances, 0.8)
+    max_size = np.max(distances)
+    
+    if max_size > 50:
+        return 50
     return factor * max_size
 
 def plot_color_plc(
@@ -82,7 +103,7 @@ def plot_color_plc(
     size=0.5,
     plot_main_axis=True,
     background="black",
-    scale_factor=None,
+    scale_factor=1,
     caption="",
     fn=None,
     return_png=False,
@@ -97,19 +118,26 @@ def plot_color_plc(
     #                                           azimuth=0,
     #                                           roll=0,
     #                                           fov=0,
-    
-    if scale_factor is None: #                                           up='-y')
-        scale_factor = compute_scale_factor(points)
-    
-        view.camera.scale_factor = scale_factor
+                                            #  up='-y')
+    if scale_factor is None:
+        scale = compute_scale_factor(points)
+    else:
+        scale = scale_factor
+    view.camera.scale_factor = scale
     draw_pcl = setting_pcl(view=view)
     draw_pcl(points, edge_color=color, size=size)
+
     if return_png:
-        img = canvas.render()[:, :, :3]
-        canvas.close()
-        vispy.app.quit()
-        return img
-    
+        try:
+            img = canvas.render()[:, :, :3]
+            canvas.close()
+            vispy.app.quit()
+            return img
+        except:
+            canvas.close()
+            vispy.app.quit()
+            return np.zeros((shape[0], shape[1], 3))
+        
     if fn is not None:
         imwrite(fn, canvas.render())
         canvas.close()

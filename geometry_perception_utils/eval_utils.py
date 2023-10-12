@@ -7,14 +7,17 @@ import numpy as np
 
 
 def compute_L1_loss(y_est, y_ref):
+    raise UserWarning("This function is deprecated. layout_model.loss_utils.compute_L1_loss.")
     return F.l1_loss(y_est, y_ref)
 
 
 def compute_weighted_L1(y_est, y_ref, std, min_std=1E-2):
+    raise UserWarning("This function is deprecated. layout_model.loss_utils.compute_weighted_L1.")
     return F.l1_loss(y_est / (std + min_std)**2, y_ref / (std + min_std)**2)
 
 
 def eval_2d3d_iuo_from_tensors(est_bon, gt_bon, losses, ch=1):
+    raise UserWarning("This function is deprecated. layout_model.eval_utils.eval_2d3d_iuo_from_tensors.")
     # Data [batch, 2, 1024]
     est_bearing_ceiling = phi_coords2xyz(est_bon[:, 0, :].squeeze())
     est_bearing_floor = phi_coords2xyz(est_bon[:, 1, :].squeeze())
@@ -33,6 +36,7 @@ def eval_2d3d_iuo_from_tensors(est_bon, gt_bon, losses, ch=1):
 
 
 def eval_2d3d_iuo(phi_coords_est, phi_coords_gt_bon, ch=1.6):
+    raise UserWarning("This function is deprecated. layout_model.eval_utils.eval_2d3d_iuo_from_tensors.") 
     est_bearing_ceiling = phi_coords2xyz(phi_coords_est[0])
     est_bearing_floor = phi_coords2xyz(phi_coords_est[1])
     gt_bearing_ceiling = phi_coords2xyz(phi_coords_gt_bon[0])
@@ -46,6 +50,7 @@ def eval_2d3d_iuo(phi_coords_est, phi_coords_gt_bon, ch=1.6):
 
 
 def eval_2d_iou_from_xyz(xyz_ps, xyz_gt):
+    raise UserWarning("This function is deprecated. layout_model.eval_utils..")
     try:
         est_poly = Polygon(zip(xyz_ps[0], xyz_ps[2]))
         gt_poly = Polygon(zip(xyz_gt[0], xyz_gt[2]))
@@ -62,6 +67,7 @@ def eval_2d_iou_from_xyz(xyz_ps, xyz_gt):
 
 def get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor, est_bearing_ceiling,
                  gt_bearing_ceiling):
+    raise UserWarning("This function is deprecated. layout_model.eval_utils.")
     try:
         gt_scale_floor = ch / gt_bearing_floor[1, :]
         gt_pcl_floor = gt_scale_floor * gt_bearing_floor

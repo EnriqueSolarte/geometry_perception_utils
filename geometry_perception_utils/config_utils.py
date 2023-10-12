@@ -2,7 +2,7 @@ import logging
 import os
 import git
 import yaml
-from omegaconf import OmegaConf
+from omegaconf import OmegaConf, open_dict
 from coolname import generate_slug
 import datetime
 from pathlib import Path
@@ -61,8 +61,10 @@ def get_hydra_overrides(**args):
 
 
 def get_dependency_versions(module, *, _parent_):
-    func = getattr(importlib.import_module(module, package=None), 'get_dependencies')
+    func = getattr(importlib.import_module(
+        module, package=None), 'get_dependencies')
     return func()
+
 
 OmegaConf.register_new_resolver('set_stamp_name', set_stamp_name)
 OmegaConf.register_new_resolver('get_hostname', get_hostname)
@@ -70,7 +72,8 @@ OmegaConf.register_new_resolver('get_git_commit', get_git_commit)
 OmegaConf.register_new_resolver('get_timestamp', get_timestamp)
 OmegaConf.register_new_resolver('get_date', get_date)
 OmegaConf.register_new_resolver('get_hydra_overrides', get_hydra_overrides)
-OmegaConf.register_new_resolver('get_dependency_versions', get_dependency_versions)
+OmegaConf.register_new_resolver(
+    'get_dependency_versions', get_dependency_versions)
 OmegaConf.register_new_resolver('load', load)
 
 
@@ -91,8 +94,12 @@ def save_cfg(cfg, script=None, cfg_file=None):
         cfg_file = os.path.join(cfg.log_dir, "cfg.yaml")
 
     if script is not None:
-        shutil.copy(script, os.path.join(cfg.log_dir, os.path.basename(script)))
-    
+        try:
+            shutil.copy(script, os.path.join(
+                cfg.log_dir, os.path.basename(script)))
+        except:
+            logging.warning(f"Could not copy script {script}")
+
     OmegaConf.resolve(cfg)
     with open(cfg_file, 'w') as fn:
         OmegaConf.save(config=cfg, f=fn)
@@ -130,7 +137,7 @@ def get_repo_version(REPO_DIR):
         os.chdir(REPO_DIR)
     else:
         os.chdir(os.path.dirname(REPO_DIR))
-        
+
     repo = git.Repo(search_parent_directories=True)
     commit = repo.head._get_commit()
     repo_name = Path(repo.working_dir).stem
@@ -138,6 +145,18 @@ def get_repo_version(REPO_DIR):
     os.chdir(current_dir)
     return data
 
+
+def update_cfg(cfg, new_struct):
+    with open_dict(cfg):
+        cfg.update(new_struct)
+    return cfg
+
+
+def get_hydra_log_dir():
+    log_dir = HydraConfig.get().runtime.output_dir
+    return log_dir
+
+
 if __name__ == '__main__':
-    test = get_repo_version(__file__)   
+    test = get_repo_version(__file__)
     print(test)

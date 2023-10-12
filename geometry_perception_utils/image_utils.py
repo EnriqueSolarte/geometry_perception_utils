@@ -15,7 +15,10 @@ COLOR_GREEN = (0, 255, 0)
 COLOR_MAGENTA = (255, 0, 255)
 COLOR_CYAN = (0, 255, 255)
 COLOR_BLUE = (51, 51, 255)
-
+COLOR_YELLOW = (255, 255, 0)
+COLOR_ORANGE = (255, 128, 0)
+COLOR_PINK = (255, 0, 128)
+COLOR_PURPLE = (128, 0, 255)
 
 
 def get_color_array(color_map):
@@ -66,12 +69,13 @@ def draw_boundaries_uv(image, boundary_uv, color=(0, 255, 0), size=2):
     return image
 
 
-
 def draw_boundaries_phi_coords(image, phi_coords, color=(0, 255, 0), size=2):
     # ! Compute bearings
     theta_coords = np.linspace(-np.pi, np.pi, phi_coords.shape[1])
-    bearings_ceiling = phi_coords2xyz(phi_coords=phi_coords[0, :], theta_coords=theta_coords)
-    bearings_floor = phi_coords2xyz(phi_coords=phi_coords[1, :], theta_coords=theta_coords)
+    bearings_ceiling = phi_coords2xyz(
+        phi_coords=phi_coords[0, :], theta_coords=theta_coords)
+    bearings_floor = phi_coords2xyz(
+        phi_coords=phi_coords[1, :], theta_coords=theta_coords)
 
     uv_ceiling = xyz2uv(bearings_ceiling)
     uv_floor = xyz2uv(bearings_floor)
@@ -93,11 +97,12 @@ def draw_boundaries_xyz(image, xyz, color=(0, 255, 0), size=2):
     return draw_boundaries_uv(image, uv, color, size)
 
 
-def add_caption_to_image(image, caption, position=(20, 20)):
-    img_obj = Image.fromarray(image)
+def add_caption_to_image(image, caption, position=(20, 20), color=(255, 0, 0)):
+    img_obj = Image.fromarray(image.astype(np.uint8))
     img_draw = ImageDraw.Draw(img_obj)
     font_obj = ImageFont.truetype("FreeMono.ttf", 20)
-    img_draw.text((position[1], position[0]), f"{caption}", font=font_obj, fill=(255, 0, 0))
+    img_draw.text((position[1], position[0]),
+                  f"{caption}", font=font_obj, fill=color)
     return np.array(img_obj)
 
 
@@ -138,15 +143,18 @@ def hmerge_list_images(list_images):
     scales = [min_h/img.shape[0] for img in list_images]
     __images = []
     for img, sc in zip(list_images, scales):
-        resize_img = rescale(img, scale=sc, anti_aliasing=True, channel_axis=True)
+        resize_img = rescale(
+            img, scale=sc, anti_aliasing=True, channel_axis=True)
         __images.append(resize_img)
     return np.hstack(__images)
+
 
 def vmerge_list_images(list_images):
     min_w = np.min([img.shape[1] for img in list_images])
     scales = [min_w/img.shape[0] for img in list_images]
     __images = []
     for img, sc in zip(list_images, scales):
-        resize_img = rescale(img, scale=sc, anti_aliasing=True, channel_axis=True)
+        resize_img = rescale(
+            img, scale=sc, anti_aliasing=True, channel_axis=True)
         __images.append(resize_img)
     return np.vstack(__images)
