@@ -9,3 +9,6 @@ pip install -e . # for dev mode
 pip install . # for normal mode
 ```
 
+## Tags
+
+* **2023.12.26:** Version used in MLC++ CVPR24 submission 
