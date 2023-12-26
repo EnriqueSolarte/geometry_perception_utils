@@ -9,6 +9,7 @@ from pathlib import Path
 from hydra.core.hydra_config import HydraConfig
 import importlib
 import shutil
+from geometry_perception_utils.io_utils import create_directory
 
 
 def set_stamp_name(number_names, *, _parent_):
@@ -89,21 +90,47 @@ def get_empty_cfg():
     return cfg
 
 
-def save_cfg(cfg, script=None, cfg_file=None):
+def save_cfg(cfg, script=None, cfg_file=None, save_list_scripts=None):
+    """
+    Automatically saves the cfg files in the log_dir. Additionally, it present 
+    the option to save the script and other scripts that are used.
+    Args:
+        cfg: General CFG where the cfg.log_dir is defined.
+        script (optional): script filename that want to be saved.
+        cfg_file (optional): cfg yaml filename. By default the passed cfg will be used
+        save_list_scripts (optional): list of other filenames scripts that we want to saved.
+    """
+
+    create_directory(cfg.log_dir, delete_prev=False)
     if cfg_file is None:
         cfg_file = os.path.join(cfg.log_dir, "cfg.yaml")
 
     if script is not None:
         try:
-            shutil.copy(script, os.path.join(
-                cfg.log_dir, os.path.basename(script)))
+            dest_fn = os.path.join(
+                cfg.log_dir, os.path.basename(script))
+            shutil.copy(script, dest_fn)
         except:
             logging.warning(f"Could not copy script {script}")
 
-    OmegaConf.resolve(cfg)
-    with open(cfg_file, 'w') as fn:
-        OmegaConf.save(config=cfg, f=fn)
-    logging.info(f"Saved cfg to {cfg_file}")
+    if save_list_scripts is not None:
+        for s in save_list_scripts:
+            try:
+                dest_fn = os.path.join(
+                    cfg.log_dir, os.path.basename(s))
+                shutil.copy(s, dest_fn)
+            except:
+                logging.warning(f"Could not copy script {s}")
+                
+    try:
+        # OmegaConf.resolve(cfg)
+        cfg.date=cfg.date
+        cfg.time=cfg.time
+        with open(cfg_file, 'w') as fn:
+            OmegaConf.save(config=cfg, f=fn)
+        logging.info(f"Saved cfg to {cfg_file}")        
+    except:
+            logging.warning(f"Could not save cfg to {cfg_file}")
 
 
 def read_omega_cfg(cfg_file):
@@ -156,6 +183,17 @@ def get_hydra_log_dir():
     log_dir = HydraConfig.get().runtime.output_dir
     return log_dir
 
+
+def print_log_dir():
+    log_dir = get_hydra_log_dir()
+    print(f" >>>>  Current log dir:")
+    print(f" >>>>  {log_dir}")
+
+    
+def print_file(fn):
+    with open(fn, 'r') as f:
+        script_contents = f.read()
+        print(script_contents)
 
 if __name__ == '__main__':
     test = get_repo_version(__file__)
