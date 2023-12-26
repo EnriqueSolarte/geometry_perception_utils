@@ -60,11 +60,12 @@ class SphericalCamera:
     def get_color_pcl_from_depth_and_rgb_maps(self,
                                               color_map,
                                               depth_map,
-                                              scaler=1):
+                                              scaler=1, 
+                                              min_depth_val=0.5):
         from geometry_perception_utils.image_utils import get_color_array
 
         color_pixels = get_color_array(color_map=color_map) / 255
-        mask = depth_map.flatten() > 0
+        mask = depth_map.flatten() > min_depth_val
         pcl = (self.default_bearings[:, mask] * scaler *
                get_color_array(color_map=depth_map)[0][mask])
         return pcl, color_pixels[:, mask]
@@ -157,15 +158,23 @@ def sph2uv(sph_coords, shape=(512, 1024)):
 
 
 def phi_coords2xyz(phi_coords, theta_coords=None):
-    assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
-
+    # assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
     if theta_coords is None:
         # due to circularity, we cannot define from -pi to pi
         # -pi and pi are the same point
         # we need to define from -pi to pi - 2pi/1024
-        theta_coords = np.linspace(-np.pi, np.pi - 2 * np.pi / 1024, 1024)
+        columns = phi_coords.size
+        theta_coords = np.linspace(-np.pi, np.pi - 2 * np.pi / columns, columns)
+
     x = np.cos(phi_coords) * np.sin(theta_coords)
     y = np.sin(phi_coords)
     z = np.cos(phi_coords) * np.cos(theta_coords)
 
     return np.vstack((x, y, z))
+
+
+def phi_coords2uv(phi_coords, shape=(512, 1024)):
+    assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
+    xyz = phi_coords2xyz(phi_coords)
+    uv = xyz2uv(xyz, shape)
+    return uv

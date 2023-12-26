@@ -9,6 +9,19 @@ import cv2
 from geometry_perception_utils.spherical_utils import phi_coords2xyz, xyz2uv
 from skimage.transform import rescale, resize, downscale_local_mean
 
+class colors:    
+    RED = (255, 0, 0)
+    GREEN = (0, 255, 0)
+    MAGENTA = (255, 0, 255)
+    CYAN = (0, 255, 255)
+    BLUE = (51, 51, 255)
+    YELLOW = (255, 255, 0)
+    ORANGE = (255, 128, 0)
+    PINK = (255, 0, 128)
+    PURPLE = (128, 0, 255)
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+
 
 COLOR_RED = (255, 0, 0)
 COLOR_GREEN = (0, 255, 0)
@@ -19,7 +32,14 @@ COLOR_YELLOW = (255, 255, 0)
 COLOR_ORANGE = (255, 128, 0)
 COLOR_PINK = (255, 0, 128)
 COLOR_PURPLE = (128, 0, 255)
+COLOR_WHITE = (255, 255, 255)
+COLOR_BLACK = (0, 0, 0)
 
+
+def set_alpha(img, alpha=0.5):
+    img = img * alpha + (1 - alpha) * 255
+    return img.astype(np.uint8)
+   
 
 def get_color_array(color_map):
     """

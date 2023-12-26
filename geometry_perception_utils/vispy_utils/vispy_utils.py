@@ -10,13 +10,14 @@ from matplotlib.colors import hsv_to_rgb
 import vispy.io as vispy_file
 import os
 from imageio import imwrite
+from vispy import app, gloo
 
 
 def get_vispy_plot(list_xyz, caption=""):
     from geometry_perception_utils.image_utils import add_caption_to_image
 
     try:
-        img = plot_list_pcl([] + list_xyz, return_png=True, shape=(512, 512))
+        img = plot_list_pcl([] + list_xyz, return_canvas=True, shape=(512, 512))
         img = add_caption_to_image(img, f"{caption}", position=(20, 20))
     except:
         img = np.zeros((512, 512, 3), dtype=np.uint8)
@@ -26,7 +27,10 @@ def get_vispy_plot(list_xyz, caption=""):
     return img
 
 
-def plot_list_pcl(list_pcl, size=1, colors=None, scale_factor=1, fn=None, return_png=False, shape=(1024, 1024)):
+def plot_list_pcl(
+    list_pcl, size=1, colors=None, scale_factor=10,
+    return_canvas=False, shape=(1024, 1024), 
+    elevation=90, azimuth=90, roll=0):
     if colors is not None:
         colors.__len__() == list_pcl.__len__()
         colors = np.vstack(colors).T/255
@@ -37,7 +41,8 @@ def plot_list_pcl(list_pcl, size=1, colors=None, scale_factor=1, fn=None, return
     for pcl, c in zip(list_pcl, colors.T):
         pcl_colors.append(np.ones_like(pcl)*c.reshape(3, 1))
 
-    return plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor, fn=fn, return_png=return_png, shape=shape)
+    return plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor, return_canvas=return_canvas, shape=shape,
+                          elevation=elevation, azimuth=azimuth, roll=roll)
 
 
 def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_colors=None):
@@ -58,7 +63,7 @@ def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_color
 
 
 def setting_viewer(main_axis=True, bgcolor="black", caption="", shape=(512, 512)):
-    canvas = vispy.scene.SceneCanvas(keys="interactive", show=True, bgcolor=bgcolor)
+    canvas = vispy.scene.SceneCanvas(show=True, bgcolor=bgcolor)
     # size_win = shape[0]
     canvas.size = shape
 
@@ -78,10 +83,12 @@ def setting_viewer(main_axis=True, bgcolor="black", caption="", shape=(512, 512)
 def setting_pcl(view, size=5, edge_width=2, antialias=0):
     scatter = visuals.Markers()
     scatter.set_gl_state(
-        "translucent",
-        depth_test=True,
-        blend=True,
-        blend_func=("src_alpha", "one_minus_src_alpha"),
+        'additive',
+        blend=False,
+        blend_equation='func_add',
+        blend_func=('src_alpha', 'zero'), 
+        cull_face=True, 
+        depth_test=True
     )
     # scatter.set_gl_state(depth_test=True)
     scatter.antialias = 0
@@ -100,19 +107,22 @@ def compute_scale_factor(points, factor=5):
 def plot_color_plc(
     points,
     color=(1, 1, 1, 1),
-    size=0.5,
+    size=1,
     plot_main_axis=True,
     background="black",
-    scale_factor=1,
+    scale_factor=10,
     caption="",
-    fn=None,
-    return_png=False,
-    shape=(512, 512)
+    return_canvas=False,
+    elevation=0,
+    azimuth=0,
+    up="-y",
+    roll=0,
+    shape=(2000, 2000)
 ):
 
     view, canvas= setting_viewer(main_axis=plot_main_axis, bgcolor=background, caption=caption, shape=shape)
     view.camera = vispy.scene.TurntableCamera(
-        elevation=90, azimuth=90, roll=0, fov=0, up="-y"
+        elevation=elevation, azimuth=azimuth, roll=roll, fov=0, up=up
     )
     # view.camera = vispy.scene.TurntableCamera(elevation=90,
     #                                           azimuth=0,
@@ -127,21 +137,16 @@ def plot_color_plc(
     draw_pcl = setting_pcl(view=view)
     draw_pcl(points, edge_color=color, size=size)
 
-    if return_png:
-        try:
-            img = canvas.render()[:, :, :3]
-            canvas.close()
-            vispy.app.quit()
-            return img
-        except:
-            canvas.close()
-            vispy.app.quit()
-            return np.zeros((shape[0], shape[1], 3))
-        
-    if fn is not None:
-        imwrite(fn, canvas.render())
-        canvas.close()
-        vispy.app.quit()
+    if return_canvas:
+        return canvas
+        # img = canvas.render()[:, :, :3]
+        # view.canvas.app.quit()
+        # view.canvas.close()
+        # del canvas
+        # del view
+        # vispy.app.quit()
+        # gc.collect()
+
+        return img
         
     vispy.app.run()
-    # return canvas.render()

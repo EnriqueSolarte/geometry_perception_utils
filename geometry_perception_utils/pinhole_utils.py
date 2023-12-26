@@ -14,8 +14,8 @@ class PinholeCamera:
 
     def compute_default_grids(self):
         h, w = self.shape
-        u = np.linspace(0, w - 1, w).astype(int) + 0.5
-        v = np.linspace(0, h - 1, h).astype(int) + 0.5
+        u = np.linspace(0, w - 1, w).astype(int)
+        v = np.linspace(0, h - 1, h).astype(int)
         uu, vv = np.meshgrid(u, v)
         self.default_pixel = np.vstack(
             (uu.flatten(), vv.flatten())).astype(np.int32)
@@ -25,21 +25,19 @@ class PinholeCamera:
                 [0, (h / 2.0) / np.tan(np.deg2rad(self.fov) / 2), (h / 2.0)],
                 [0, 0, 1]
             ])  # (3, 3)
+
+        # * Bearings vectors on the homogenous plane
         self.default_bearings_pp = uv2xyz(self.default_pixel, self.K)
+        
+        # * Bearing vectors on the unit sphere
         self.default_bearings_sph = self.default_bearings_pp / np.linalg.norm(self.default_bearings_pp, axis=0, keepdims=True)        
+        
+        # * Theta and phi angles range
         self.theta_range = np.linspace(
             -np.deg2rad(self.fov/2), np.deg2rad(self.fov/2) - self.fov/w, w)
         self.phi_range = np.linspace(
             -np.deg2rad(self.fov/2), np.deg2rad(self.fov/2) - self.fov/h, h)
 
-    def xyz2bearings(self, xyz):
-        raise NotImplementedError
-
-    def bearings2xyz(self, bearings):
-        raise NotImplementedError
-        
-    def bearing2uv(self, bearings):
-        raise NotImplementedError
         
     def get_color_pcl_from_depth_and_rgb_maps(self,
                                               color_map,
@@ -54,8 +52,13 @@ class PinholeCamera:
         return pcl, color_pixels[:, mask]
 
 
+ 
+def xyz2uv(xyz, K):
+    assert xyz.shape[0] == 3
+    __xyz = extend_array_to_homogeneous(xyz)
+    return np.round(K[:2, :] @ __xyz - 0.5) 
 
 def uv2xyz(uv, K):
     assert uv.shape[0] == 2    
-    __uv = extend_array_to_homogeneous(uv)
+    __uv = extend_array_to_homogeneous(uv + 0.5)
     return np.linalg.inv(K) @ __uv
