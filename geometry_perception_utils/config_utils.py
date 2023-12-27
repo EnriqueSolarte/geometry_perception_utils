@@ -16,6 +16,8 @@ def set_stamp_name(number_names, *, _parent_):
     _parent_['stamp_name'] = generate_slug(int(number_names))
     return _parent_['stamp_name']
 
+def get_hydra_file_dirname(*, _parent_):
+    return HydraConfig.get().runtime.config_sources[1].path
 
 def get_date(format=0, *, _parent_):
     if format == 0:
@@ -73,6 +75,7 @@ OmegaConf.register_new_resolver('get_git_commit', get_git_commit)
 OmegaConf.register_new_resolver('get_timestamp', get_timestamp)
 OmegaConf.register_new_resolver('get_date', get_date)
 OmegaConf.register_new_resolver('get_hydra_overrides', get_hydra_overrides)
+OmegaConf.register_new_resolver('get_hydra_file_dirname', get_hydra_file_dirname)
 OmegaConf.register_new_resolver(
     'get_dependency_versions', get_dependency_versions)
 OmegaConf.register_new_resolver('load', load)
