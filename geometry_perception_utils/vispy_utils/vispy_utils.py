@@ -40,7 +40,8 @@ def plot_list_pcl(
     pcl_colors = []
     for pcl, c in zip(list_pcl, colors.T):
         pcl_colors.append(np.ones_like(pcl)*c.reshape(3, 1))
-
+    if scale_factor is None:
+        scale_factor = compute_scale_factor(np.hstack(list_pcl).T)
     return plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor, return_canvas=return_canvas, shape=shape,
                           elevation=elevation, azimuth=azimuth, roll=roll)
 
@@ -95,7 +96,7 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     view.add(scatter)
     return partial(scatter.set_data, size=size, edge_width=edge_width)
 
-def compute_scale_factor(points, factor=5):
+def compute_scale_factor(points, factor=2):
     distances = np.linalg.norm(points, axis=1)
     # max_size = np.quantile(distances, 0.8)
     max_size = np.max(distances)
