@@ -56,7 +56,7 @@ class SphericalCamera:
         xyz = phi_coords2xyz(phi_coords, self.theta_range)
         uv = xyz2uv(xyz, self.shape)
         return uv
-
+    
     def get_color_pcl_from_depth_and_rgb_maps(self,
                                               color_map,
                                               depth_map,

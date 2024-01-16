@@ -16,8 +16,10 @@ def set_stamp_name(number_names, *, _parent_):
     _parent_['stamp_name'] = generate_slug(int(number_names))
     return _parent_['stamp_name']
 
+
 def get_hydra_file_dirname(*, _parent_):
     return HydraConfig.get().runtime.config_sources[1].path
+
 
 def get_date(format=0, *, _parent_):
     if format == 0:

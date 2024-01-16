@@ -28,7 +28,7 @@ def get_vispy_plot(list_xyz, caption=""):
 
 
 def plot_list_pcl(
-    list_pcl, size=1, colors=None, scale_factor=10,
+    list_pcl, size=1, colors=None, scale_factor=10, up="-y",
     return_canvas=False, shape=(1024, 1024), 
     elevation=90, azimuth=90, roll=0):
     if colors is not None:
@@ -40,10 +40,10 @@ def plot_list_pcl(
     pcl_colors = []
     for pcl, c in zip(list_pcl, colors.T):
         pcl_colors.append(np.ones_like(pcl)*c.reshape(3, 1))
-    if scale_factor is None:
+    if scale_factor is None or scale_factor < 0:
         scale_factor = compute_scale_factor(np.hstack(list_pcl).T)
     return plot_color_plc(np.hstack(list_pcl).T, color=np.hstack(pcl_colors).T, size=size, scale_factor=scale_factor, return_canvas=return_canvas, shape=shape,
-                          elevation=elevation, azimuth=azimuth, roll=roll)
+                          elevation=elevation, azimuth=azimuth, roll=roll, up=up)
 
 
 def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_colors=None):
@@ -97,7 +97,9 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     return partial(scatter.set_data, size=size, edge_width=edge_width)
 
 def compute_scale_factor(points, factor=2):
-    distances = np.linalg.norm(points, axis=1)
+    # distances = np.linalg.norm(points, axis=1)
+    distances = np.max(abs(points), axis=0)
+    
     # max_size = np.quantile(distances, 0.8)
     max_size = np.max(distances)
     
@@ -130,7 +132,7 @@ def plot_color_plc(
     #                                           roll=0,
     #                                           fov=0,
                                             #  up='-y')
-    if scale_factor is None:
+    if scale_factor is None or scale_factor < 0:
         scale = compute_scale_factor(points)
     else:
         scale = scale_factor
