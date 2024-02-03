@@ -173,7 +173,7 @@ def eulerAnglesToRotationMatrix(angles):
         ]
     )
 
-    R = np.dot(R_z, np.dot(R_y, R_x))
+    # R = np.dot(R_z, np.dot(R_y, R_x))
     R =  R_x @ R_y @ R_z
     return R
 

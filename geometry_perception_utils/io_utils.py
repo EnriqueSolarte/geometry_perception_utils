@@ -16,9 +16,8 @@ def load_instances(self, cfg):
     """
     Load key-value pairs from a config file into the class namespace.
     """
-    for key, val in cfg.items():
-        setattr(self, key, val)
-
+    [setattr(self, key, val) for key, val in cfg.items()]
+    
         
 def save_json_dict(filename, dict_data):
     with open(filename, "w") as outfile:

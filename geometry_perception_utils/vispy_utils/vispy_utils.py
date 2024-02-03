@@ -28,9 +28,9 @@ def get_vispy_plot(list_xyz, caption=""):
 
 
 def plot_list_pcl(
-    list_pcl, size=1, colors=None, scale_factor=10, up="-y",
+    list_pcl, size=1, colors=None, scale_factor=None, up="-y",
     return_canvas=False, shape=(1024, 1024), 
-    elevation=90, azimuth=90, roll=0):
+    elevation=90, azimuth=180, roll=0):
     if colors is not None:
         colors.__len__() == list_pcl.__len__()
         colors = np.vstack(colors).T/255
@@ -96,7 +96,7 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     view.add(scatter)
     return partial(scatter.set_data, size=size, edge_width=edge_width)
 
-def compute_scale_factor(points, factor=2):
+def compute_scale_factor(points, factor=2.5):
     # distances = np.linalg.norm(points, axis=1)
     distances = np.max(abs(points), axis=0)
     
@@ -113,7 +113,7 @@ def plot_color_plc(
     size=1,
     plot_main_axis=True,
     background="black",
-    scale_factor=10,
+    scale_factor=None,
     caption="",
     return_canvas=False,
     elevation=0,
