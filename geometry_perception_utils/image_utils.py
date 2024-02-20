@@ -8,6 +8,10 @@ import skimage.filters
 # import cv2
 from geometry_perception_utils.spherical_utils import phi_coords2xyz, xyz2uv
 from skimage.transform import rescale, resize, downscale_local_mean
+from geometry_perception_utils.vispy_utils import get_color_list as vispy_get_color_list
+
+def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_colors=None):
+    return vispy_get_color_list(array_colors, fr, return_list, number_of_colors)
 
 class colors:    
     RED = (255, 0, 0)

@@ -96,15 +96,15 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     view.add(scatter)
     return partial(scatter.set_data, size=size, edge_width=edge_width)
 
-def compute_scale_factor(points, factor=2.5):
+def compute_scale_factor(points, factor=3):
     # distances = np.linalg.norm(points, axis=1)
     distances = np.max(abs(points), axis=0)
     
     # max_size = np.quantile(distances, 0.8)
     max_size = np.max(distances)
     
-    if max_size > 50:
-        return 50
+    # if max_size > 50:
+    #     return 50
     return factor * max_size
 
 def plot_color_plc(
@@ -116,7 +116,7 @@ def plot_color_plc(
     scale_factor=None,
     caption="",
     return_canvas=False,
-    elevation=0,
+    elevation=90,
     azimuth=0,
     up="-y",
     roll=0,
