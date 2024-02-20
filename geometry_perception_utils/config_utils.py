@@ -10,6 +10,7 @@ from hydra.core.hydra_config import HydraConfig
 import importlib
 import shutil
 from geometry_perception_utils.io_utils import create_directory
+import numpy as np
 
 
 def set_stamp_name(number_names, *, _parent_):

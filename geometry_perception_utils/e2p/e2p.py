@@ -257,11 +257,11 @@ def e2p(e_img, fov_deg, u_deg, v_deg, out_hw, in_rot_deg=0, mode="bilinear"):
         
     h, w = e_img.shape[:2]
 
-    try:
-        h_fov, v_fov = fov_deg[0] * np.pi / 180, fov_deg[1] * np.pi / 180
-    except:
-        fov = fov_deg * np.pi / 180
-        h_fov, v_fov = fov, fov
+    # try:
+        # h_fov, v_fov = fov_deg[0] * np.pi / 180, fov_deg[1] * np.pi / 180
+    # except:
+    fov = np.max(fov_deg) * np.pi / 180
+    h_fov, v_fov = fov, fov
     in_rot = in_rot_deg * np.pi / 180
 
     if mode == "bilinear":
@@ -274,6 +274,7 @@ def e2p(e_img, fov_deg, u_deg, v_deg, out_hw, in_rot_deg=0, mode="bilinear"):
     u = -u_deg * np.pi / 180
     v = v_deg * np.pi / 180
     xyz = xyzpers(h_fov, v_fov, u, v, out_hw, in_rot)
+
     uv = xyz2uv(xyz)
     coor_xy = uv2coor(uv, h, w)
 
@@ -289,7 +290,10 @@ def e2p(e_img, fov_deg, u_deg, v_deg, out_hw, in_rot_deg=0, mode="bilinear"):
             axis=-1,
         )
 
-    return pers_img
+    _fov = fov_deg/np.max(fov_deg)
+    hw = (out_hw[0] * _fov[0]//2).astype(np.int32), (out_hw[1] * _fov[1]//2).astype(np.int32)
+    h, w = pers_img.shape[:2]
+    return pers_img[h//2 - hw[0]:h//2 +hw[0], w//2 - hw[1]:w//2+hw[1]]
 
 
 def equirectangular_to_pinhole(fov=120, shape=(512, 512)):
