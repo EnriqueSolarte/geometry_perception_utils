@@ -5,7 +5,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 import skimage.filters
-# import cv2
+import cv2
 from geometry_perception_utils.spherical_utils import phi_coords2xyz, xyz2uv
 from skimage.transform import rescale, resize, downscale_local_mean
 from geometry_perception_utils.vispy_utils import get_color_list as vispy_get_color_list
@@ -80,14 +80,21 @@ def draw_sorted_boundaries_uv(image, boundary_uv, color=(0, 255, 0), size=2):
 
 
 def draw_boundaries_uv(image, boundary_uv, color=(0, 255, 0), size=2):
+    H, W = image.shape[:2]
     if image.shape.__len__() == 3:
-        for i in range(size):
-            image[(boundary_uv[1] + i) % image.shape[0],
-                  boundary_uv[0], :] = np.array(color)
+        for i in np.linspace(-size//2, size//2, size*2):
+            for j in np.linspace(-size//2, size//2, size*2):
+            # image[(boundary_uv[1] + i) % image.shape[0],
+            #       boundary_uv[0], :] = np.array(color)
+                image[np.int16(boundary_uv[1]+i) % H, np.int16((boundary_uv[0]+j) % W), :] = color
+
             # image[(boundary_uv[1]-i)% 0, boundary_uv[0], :] = np.array(color)
     else:
-        for i in range(size):
-            image[(boundary_uv[1] + i) % image.shape[0], boundary_uv[0]] = 255
+        for i in np.linspace(-size//2, size//2, size*2):
+            for j in np.linspace(-size//2, size//2, size*2):
+                image[np.int16(boundary_uv[1]+i) % H, np.int16((boundary_uv[0]+j) % W)] = np.max(color)
+            
+            # image[(boundary_uv[1] + i) % image.shape[0], boundary_uv[0]] = 255
             # image[(boundary_uv[1]-i)% 0, boundary_uv[0]] = 255
 
     return image
@@ -113,6 +120,14 @@ def draw_boundaries_phi_coords(image, phi_coords, color=(0, 255, 0), size=2):
                        color=color,
                        size=size)
 
+    # image = draw_sorted_boundaries_uv(image=image,
+    #                    boundary_uv=uv_ceiling,
+    #                    color=color,
+    #                    size=size)
+    # image = draw_sorted_boundaries_uv(image=image,
+    #                    boundary_uv=uv_floor,
+    #                    color=color,
+    #                    size=size)
     return image
 
 
@@ -121,10 +136,10 @@ def draw_boundaries_xyz(image, xyz, color=(0, 255, 0), size=2):
     return draw_boundaries_uv(image, uv, color, size)
 
 
-def add_caption_to_image(image, caption, position=(20, 20), color=(255, 0, 0)):
+def add_caption_to_image(image, caption, position=(20, 20), color=(255, 0, 0), font_s=100):
     img_obj = Image.fromarray(image.astype(np.uint8))
     img_draw = ImageDraw.Draw(img_obj)
-    font_obj = ImageFont.truetype("FreeMono.ttf", 20)
+    font_obj = ImageFont.truetype("FreeMono.ttf", font_s)
     img_draw.text((position[1], position[0]),
                   f"{caption}", font=font_obj, fill=color)
     return np.array(img_obj)

@@ -149,10 +149,10 @@ def xyz2uv(xyz, shape=(512, 1024)):
 
 def sph2uv(sph_coords, shape=(512, 1024)):
     theta_coord = sph_coords[0, :]
-    theta_coord = sph_coords[1, :]
+    phi_cords = sph_coords[1, :]
     u = np.clip(np.floor((0.5 * theta_coord / np.pi + 0.5) * shape[1]), 0,
                 shape[1] - 1)
-    v = np.clip(np.floor((theta_coord / np.pi + 0.5) * shape[0]), 0,
+    v = np.clip(np.floor((phi_cords / np.pi + 0.5) * shape[0]), 0,
                 shape[0] - 1)
     return np.vstack((u, v)).astype(int)
 
@@ -178,3 +178,12 @@ def phi_coords2uv(phi_coords, shape=(512, 1024)):
     xyz = phi_coords2xyz(phi_coords)
     uv = xyz2uv(xyz, shape)
     return uv
+
+def get_canonical_bearings(shape=(512, 1024)):
+    h, w = shape
+    u = np.linspace(0, w - 1, w).astype(int) + 0.5
+    v = np.linspace(0, h - 1, h).astype(int) + 0.5
+    uu, vv = np.meshgrid(u, v)
+    default_pixel = np.vstack(
+        (uu.flatten(), vv.flatten())).astype(np.int32)
+    return uv2xyz(default_pixel, shape)
