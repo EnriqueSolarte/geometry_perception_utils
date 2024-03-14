@@ -9,6 +9,6 @@ pip install -e . # for dev mode
 pip install . # for normal mode
 ```
 
-## Tags
+## Versions
 
-* **2023.12.26:** Version used in MLC++ CVPR24 submission 
+* `v1.0`: Version used in Ray-casting pseudo-labeling for ECCV24 submission 
