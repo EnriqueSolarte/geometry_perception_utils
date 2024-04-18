@@ -39,6 +39,13 @@ COLOR_PURPLE = (128, 0, 255)
 COLOR_WHITE = (255, 255, 255)
 COLOR_BLACK = (0, 0, 0)
 
+def get_default_uv_map(shape):
+    h, w = shape
+    u = np.linspace(0, w-1, w).astype(np.int16)
+    v = np.linspace(0, h-1, h).astype(np.int16)
+    uu, vv = np.meshgrid(u, v)
+    uv_map = np.stack((vv, uu)).transpose(1, 2, 0)
+    return uv_map
 
 def set_alpha(img, alpha=0.5):
     img = img * alpha + (1 - alpha) * 255
