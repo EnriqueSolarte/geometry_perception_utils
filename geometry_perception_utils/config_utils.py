@@ -21,6 +21,8 @@ def set_stamp_name(number_names, *, _parent_):
 def get_hydra_file_dirname(*, _parent_):
     return HydraConfig.get().runtime.config_sources[1].path
 
+def get_hydra_dirname(*, _parent_):
+    return HydraConfig.get().runtime.config_sources[1].path.split("/")[-1]
 
 def get_date(format=0, *, _parent_):
     if format == 0:
@@ -82,6 +84,7 @@ OmegaConf.register_new_resolver('get_hydra_file_dirname', get_hydra_file_dirname
 OmegaConf.register_new_resolver(
     'get_dependency_versions', get_dependency_versions)
 OmegaConf.register_new_resolver('load', load)
+OmegaConf.register_new_resolver('get_hydra_dirname', get_hydra_dirname)
 
 
 def get_empty_cfg():
@@ -96,7 +99,7 @@ def get_empty_cfg():
     return cfg
 
 
-def save_cfg(cfg, script=None, cfg_file=None, save_list_scripts=None):
+def save_cfg(cfg, cfg_file=None, save_list_scripts=None):
     """
     Automatically saves the cfg files in the log_dir. Additionally, it present 
     the option to save the script and other scripts that are used.
@@ -110,14 +113,6 @@ def save_cfg(cfg, script=None, cfg_file=None, save_list_scripts=None):
     create_directory(cfg.log_dir, delete_prev=False)
     if cfg_file is None:
         cfg_file = os.path.join(cfg.log_dir, "cfg.yaml")
-
-    if script is not None:
-        try:
-            dest_fn = os.path.join(
-                cfg.log_dir, os.path.basename(script))
-            shutil.copy(script, dest_fn)
-        except:
-            logging.warning(f"Could not copy script {script}")
 
     if save_list_scripts is not None:
         for s in save_list_scripts:
@@ -136,7 +131,7 @@ def save_cfg(cfg, script=None, cfg_file=None, save_list_scripts=None):
             OmegaConf.save(config=cfg, f=fn)
         logging.info(f"Saved cfg to {cfg_file}")        
     except:
-            logging.warning(f"Could not save cfg to {cfg_file}")
+        logging.warning(f"Could not save cfg to {cfg_file}")
 
 
 def read_omega_cfg(cfg_file):
@@ -200,6 +195,7 @@ def print_file(fn):
     with open(fn, 'r') as f:
         script_contents = f.read()
         print(script_contents)
+
 
 if __name__ == '__main__':
     test = get_repo_version(__file__)
