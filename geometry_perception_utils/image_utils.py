@@ -10,10 +10,12 @@ from geometry_perception_utils.spherical_utils import phi_coords2xyz, xyz2uv
 from skimage.transform import rescale, resize, downscale_local_mean
 from geometry_perception_utils.vispy_utils import get_color_list as vispy_get_color_list
 
+
 def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_colors=None):
     return vispy_get_color_list(array_colors, fr, return_list, number_of_colors)
 
-class colors:    
+
+class colors:
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
     MAGENTA = (255, 0, 255)
@@ -39,6 +41,7 @@ COLOR_PURPLE = (128, 0, 255)
 COLOR_WHITE = (255, 255, 255)
 COLOR_BLACK = (0, 0, 0)
 
+
 def get_default_uv_map(shape):
     h, w = shape
     u = np.linspace(0, w-1, w).astype(np.int16)
@@ -47,10 +50,11 @@ def get_default_uv_map(shape):
     uv_map = np.stack((vv, uu)).transpose(1, 2, 0)
     return uv_map
 
+
 def set_alpha(img, alpha=0.5):
     img = img * alpha + (1 - alpha) * 255
     return img.astype(np.uint8)
-   
+
 
 def get_color_array(color_map):
     """
@@ -91,16 +95,18 @@ def draw_boundaries_uv(image, boundary_uv, color=(0, 255, 0), size=2):
     if image.shape.__len__() == 3:
         for i in np.linspace(-size//2, size//2, size*2):
             for j in np.linspace(-size//2, size//2, size*2):
-            # image[(boundary_uv[1] + i) % image.shape[0],
-            #       boundary_uv[0], :] = np.array(color)
-                image[np.int16(boundary_uv[1]+i) % H, np.int16((boundary_uv[0]+j) % W), :] = color
+                # image[(boundary_uv[1] + i) % image.shape[0],
+                #       boundary_uv[0], :] = np.array(color)
+                image[np.int16(boundary_uv[1]+i) %
+                      H, np.int16((boundary_uv[0]+j) % W), :] = color
 
             # image[(boundary_uv[1]-i)% 0, boundary_uv[0], :] = np.array(color)
     else:
         for i in np.linspace(-size//2, size//2, size*2):
             for j in np.linspace(-size//2, size//2, size*2):
-                image[np.int16(boundary_uv[1]+i) % H, np.int16((boundary_uv[0]+j) % W)] = np.max(color)
-            
+                image[np.int16(boundary_uv[1]+i) %
+                      H, np.int16((boundary_uv[0]+j) % W)] = np.max(color)
+
             # image[(boundary_uv[1] + i) % image.shape[0], boundary_uv[0]] = 255
             # image[(boundary_uv[1]-i)% 0, boundary_uv[0]] = 255
 

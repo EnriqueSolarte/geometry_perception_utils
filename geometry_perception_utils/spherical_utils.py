@@ -5,6 +5,7 @@ import numpy as np
 from multiprocessing.pool import ThreadPool
 from geometry_perception_utils.vispy_utils.vispy_utils import plot_list_pcl
 from scipy import interpolate
+import torch
 
 
 class SphericalCamera:
@@ -56,11 +57,11 @@ class SphericalCamera:
         xyz = phi_coords2xyz(phi_coords, self.theta_range)
         uv = xyz2uv(xyz, self.shape)
         return uv
-    
+
     def get_color_pcl_from_depth_and_rgb_maps(self,
                                               color_map,
                                               depth_map,
-                                              scaler=1, 
+                                              scaler=1,
                                               min_depth_val=0.5):
         from geometry_perception_utils.image_utils import get_color_array
 
@@ -157,14 +158,31 @@ def sph2uv(sph_coords, shape=(512, 1024)):
     return np.vstack((u, v)).astype(int)
 
 
+def phi_coords2xyz_from_tensors(phi_coords):
+    phi_coords = phi_coords.reshape(-1, 1024)
+    columns = phi_coords.shape[-1]
+    theta_coords = torch.linspace(-np.pi, np.pi -
+                                  2 * np.pi / columns, columns)[None, :]
+    theta_coords = theta_coords.repeat(
+        (phi_coords.shape[0], 1)).to(phi_coords.device)
+    assert theta_coords.shape == phi_coords.shape
+
+    x = torch.cos(phi_coords) * torch.sin(theta_coords)
+    y = torch.sin(phi_coords)
+    z = torch.cos(phi_coords) * torch.cos(theta_coords)
+
+    return torch.stack((x, y, z))
+
+
 def phi_coords2xyz(phi_coords, theta_coords=None):
     # assert phi_coords.size == 1024, "phi_coords must be a 1024 array"
     if theta_coords is None:
         # due to circularity, we cannot define from -pi to pi
         # -pi and pi are the same point
         # we need to define from -pi to pi - 2pi/1024
-        columns = phi_coords.size
-        theta_coords = np.linspace(-np.pi, np.pi - 2 * np.pi / columns, columns)
+        columns = phi_coords.shape[-1]
+        theta_coords = np.linspace(-np.pi, np.pi -
+                                   2 * np.pi / columns, columns)
 
     x = np.cos(phi_coords) * np.sin(theta_coords)
     y = np.sin(phi_coords)
@@ -178,6 +196,7 @@ def phi_coords2uv(phi_coords, shape=(512, 1024)):
     xyz = phi_coords2xyz(phi_coords)
     uv = xyz2uv(xyz, shape)
     return uv
+
 
 def get_canonical_bearings(shape=(512, 1024)):
     h, w = shape

@@ -38,15 +38,15 @@ class PnP:
         assert bearings.shape[1] == landmarks.shape[1]
         assert bearings.shape[0] == 3
         assert landmarks.shape[0] == 3
-        
+
         # * Ab = 0
         A = self.build_matrix_A(bearings, landmarks)
         _, _, V = np.linalg.svd(A)
-        
+
         # Linear solution
         b = V[-1]
-        
+
         b = b.reshape(3, 4)
 
-        # * b = [ R | t ] --> Force R into SO(3) 
+        # * b = [ R | t ] --> Force R into SO(3)
         return approxRotationMatrix(b)

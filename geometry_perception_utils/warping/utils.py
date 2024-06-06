@@ -6,6 +6,7 @@ from torchvision import transforms
 from typing import Union
 import cv2
 
+
 def preprocess(
     img: Union[np.ndarray, Image.Image], is_cv2: bool = False
 ) -> torch.Tensor:
@@ -36,5 +37,3 @@ def postprocess(
         img = img.to("cpu")
         img = to_PIL(img)
         return img
-
-

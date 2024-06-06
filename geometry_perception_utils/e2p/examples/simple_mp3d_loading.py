@@ -42,12 +42,12 @@ def example_using_list_ly(args):
         imwrite(fn, image_pp)
         fn = os.path.join(DIR_LY_CAM_PROJ_ASSETS, f'image_360.jpg')
         imwrite(fn, image_360)
-        
+
         break
 
 
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--fov_deg", type=float, default=90)
     parser.add_argument("--out_hw", type=int, nargs=2, default=(512, 512))

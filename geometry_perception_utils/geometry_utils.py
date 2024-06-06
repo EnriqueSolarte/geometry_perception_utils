@@ -10,7 +10,8 @@ def get_quaternion_from_matrix(matrix):
     """
     q = Quaternion(matrix=matrix)
     return (
-        np.array((q.x, q.y, q.z, q.w)) if q.w > 0 else -np.array((q.x, q.y, q.z, q.w))
+        np.array((q.x, q.y, q.z, q.w)) if q.w > 0 else -
+        np.array((q.x, q.y, q.z, q.w))
     )
 
 
@@ -174,7 +175,7 @@ def eulerAnglesToRotationMatrix(angles):
     )
 
     # R = np.dot(R_z, np.dot(R_y, R_x))
-    R =  R_x @ R_y @ R_z
+    R = R_x @ R_y @ R_z
     return R
 
 
@@ -235,10 +236,10 @@ def get_rot_matrix_from_two_vectors(src, dst):
     __dst = dst / np.linalg.norm(dst)
     normal = np.cross(src, dst)
     theta = np.arccos(np.clip(np.dot(__src, __dst), -1.0, 1.0))
-    
+
     q = Quaternion(axis=normal, radians=theta)
     return q.rotation_matrix
-    
+
 
 def approxRotationMatrix(SE3_matrix):
     '''
@@ -261,7 +262,7 @@ def approxRotationMatrix(SE3_matrix):
     R = np.dot(R, V)
 
     t = t / scale
-    
+
     T = np.eye(4)
     T[0:3, 0:3] = R
     T[0:3, 3] = t
@@ -274,7 +275,8 @@ def angle_between_vectors(vect_ref, vect):
     :return:
     """
 
-    c = np.dot(vect_ref.T, vect) / (np.linalg.norm(vect_ref) * np.linalg.norm(vect))
+    c = np.dot(vect_ref.T, vect) / \
+        (np.linalg.norm(vect_ref) * np.linalg.norm(vect))
     angle = np.arccos(np.clip(c, -1, 1))
 
     return angle
@@ -300,9 +302,9 @@ def evaluate_error_in_transformation(transform_est,
     # ! Error in translation
     trans_err = angle_between_vectors(transform_gt[0:3, 3],
                                       transform_est[0:3, 3]) / np.pi
-    
+
     dist_err = np.linalg.norm(transform_gt[0:3, 3] - transform_est[0:3, 3])
-    
+
     if degrees:
         return np.degrees(rot_err), np.degrees(trans_err), dist_err
     else:

@@ -8,7 +8,7 @@ from imageio.v2 import imwrite, imread
 
 
 def main():
-    img_equi_fn='/media/Pluto/kike/geometry_perception_utils/geometry_perception_utils/data/equi2.png'
+    img_equi_fn = '/media/Pluto/kike/geometry_perception_utils/geometry_perception_utils/data/equi2.png'
     results_dir = '/media/Pluto/kike/geometry_perception_utils/geometry_perception_utils/data/results'
     # Rotation:
     rot = {
@@ -30,7 +30,7 @@ def main():
     out_img = np.array(out_img)
     out_path = f"{results_dir}/warping_equi2equi.jpg"
     imwrite(out_path, out_img)
-    
+
     print(f"Save in {out_path}")
 
 

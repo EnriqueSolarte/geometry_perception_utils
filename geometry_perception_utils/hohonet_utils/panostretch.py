@@ -105,7 +105,8 @@ def pano_stretch(img, corners, kx, ky, order=1):
     corners_u0 = coorx2u(corners[:, 0], img.shape[1])
     corners_v0 = coory2v(corners[:, 1], img.shape[0])
     corners_u = np.arctan2(np.sin(corners_u0) * ky / kx, np.cos(corners_u0))
-    corners_v = np.arctan(np.tan(corners_v0) * np.sin(corners_u) / np.sin(corners_u0) / ky)
+    corners_v = np.arctan(np.tan(corners_v0) *
+                          np.sin(corners_u) / np.sin(corners_u0) / ky)
     cornersX = u2coorx(corners_u, img.shape[1])
     cornersY = v2coory(corners_v, img.shape[0])
     stretched_corners = np.stack([cornersX, cornersY], axis=-1)
@@ -120,7 +121,8 @@ def visualize_pano_stretch(stretched_img, stretched_cor, title):
     thikness = 2
     color = (0, 255, 0)
     for i in range(4):
-        xys = pano_connect_points(stretched_cor[i*2], stretched_cor[(i*2+2) % 8], z=-50)
+        xys = pano_connect_points(
+            stretched_cor[i*2], stretched_cor[(i*2+2) % 8], z=-50)
         xys = xys.astype(int)
         blue_split = np.where((xys[1:, 0] - xys[:-1, 0]) < 0)[0]
         if len(blue_split) == 0:
@@ -131,7 +133,8 @@ def visualize_pano_stretch(stretched_img, stretched_cor, title):
             cv2.polylines(stretched_img, [xys[t:]], False, color, thikness)
 
     for i in range(4):
-        xys = pano_connect_points(stretched_cor[i*2+1], stretched_cor[(i*2+3) % 8], z=50)
+        xys = pano_connect_points(
+            stretched_cor[i*2+1], stretched_cor[(i*2+3) % 8], z=50)
         xys = xys.astype(int)
         blue_split = np.where((xys[1:, 0] - xys[:-1, 0]) < 0)[0]
         if len(blue_split) == 0:
@@ -155,8 +158,10 @@ if __name__ == '__main__':
     import cv2
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--i', default='data/valid/img/pano_abpohapclcyuuz.png')
-    parser.add_argument('--i_gt', default='data/valid/label_cor/pano_abpohapclcyuuz.txt')
+    parser.add_argument(
+        '--i', default='data/valid/img/pano_abpohapclcyuuz.png')
+    parser.add_argument(
+        '--i_gt', default='data/valid/label_cor/pano_abpohapclcyuuz.txt')
     parser.add_argument('--o', default='sample_stretched_pano.png')
     parser.add_argument('--kx', default=2, type=float,
                         help='Stretching along front-back direction')
@@ -170,5 +175,6 @@ if __name__ == '__main__':
     stretched_img, stretched_cor = pano_stretch(img, cor, args.kx, args.ky)
 
     title = 'kx=%3.2f, ky=%3.2f' % (args.kx, args.ky)
-    visual_stretched_img = visualize_pano_stretch(stretched_img, stretched_cor, title)
+    visual_stretched_img = visualize_pano_stretch(
+        stretched_img, stretched_cor, title)
     Image.fromarray(visual_stretched_img).save(args.o)

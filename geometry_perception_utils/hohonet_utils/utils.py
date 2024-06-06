@@ -1,4 +1,4 @@
-import numpy as np  
+import numpy as np
 from shapely.geometry import LineString
 from geometry_perception_utils.hohonet_utils import panostretch
 
@@ -98,4 +98,3 @@ def visualize_a_data(x, y_bon, y_cor):
     img_bon[y_bon[1], np.arange(len(y_bon[1])), 1] = 255
 
     return np.concatenate([gt_cor, img_pad, img_bon], 0)
-

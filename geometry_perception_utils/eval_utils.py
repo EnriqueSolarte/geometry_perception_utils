@@ -7,17 +7,20 @@ import numpy as np
 
 
 def compute_L1_loss(y_est, y_ref):
-    raise UserWarning("This function is deprecated. layout_model.loss_utils.compute_L1_loss.")
+    raise UserWarning(
+        "This function is deprecated. layout_model.loss_utils.compute_L1_loss.")
     return F.l1_loss(y_est, y_ref)
 
 
 def compute_weighted_L1(y_est, y_ref, std, min_std=1E-2):
-    raise UserWarning("This function is deprecated. layout_model.loss_utils.compute_weighted_L1.")
+    raise UserWarning(
+        "This function is deprecated. layout_model.loss_utils.compute_weighted_L1.")
     return F.l1_loss(y_est / (std + min_std)**2, y_ref / (std + min_std)**2)
 
 
 def eval_2d3d_iuo_from_tensors(est_bon, gt_bon, losses, ch=1):
-    raise UserWarning("This function is deprecated. layout_model.eval_utils.eval_2d3d_iuo_from_tensors.")
+    raise UserWarning(
+        "This function is deprecated. layout_model.eval_utils.eval_2d3d_iuo_from_tensors.")
     # Data [batch, 2, 1024]
     est_bearing_ceiling = phi_coords2xyz(est_bon[:, 0, :].squeeze())
     est_bearing_floor = phi_coords2xyz(est_bon[:, 1, :].squeeze())
@@ -25,24 +28,26 @@ def eval_2d3d_iuo_from_tensors(est_bon, gt_bon, losses, ch=1):
     gt_bearing_floor = phi_coords2xyz(gt_bon[:, 1, :].squeeze())
 
     iou2d, iou3d, ret = get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor,
-                                est_bearing_ceiling, gt_bearing_ceiling)
-    
+                                     est_bearing_ceiling, gt_bearing_ceiling)
+
     if not ret:
-        logging.warning("2D/3D IoU evaluation skipped @ eval_2d3d_iuo_from_tensors() ")
+        logging.warning(
+            "2D/3D IoU evaluation skipped @ eval_2d3d_iuo_from_tensors() ")
         return
-    
+
     losses["2DIoU"].append(iou2d)
     losses["3DIoU"].append(iou3d)
 
 
 def eval_2d3d_iuo(phi_coords_est, phi_coords_gt_bon, ch=1.6):
-    raise UserWarning("This function is deprecated. layout_model.eval_utils.eval_2d3d_iuo_from_tensors.") 
+    raise UserWarning(
+        "This function is deprecated. layout_model.eval_utils.eval_2d3d_iuo_from_tensors.")
     est_bearing_ceiling = phi_coords2xyz(phi_coords_est[0])
     est_bearing_floor = phi_coords2xyz(phi_coords_est[1])
     gt_bearing_ceiling = phi_coords2xyz(phi_coords_gt_bon[0])
     gt_bearing_floor = phi_coords2xyz(phi_coords_gt_bon[1])
-    iou2d, iou3d, ret =  get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor,
-                        est_bearing_ceiling, gt_bearing_ceiling)
+    iou2d, iou3d, ret = get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor,
+                                     est_bearing_ceiling, gt_bearing_ceiling)
     if not ret:
         return np.nan, np.nan
     return iou2d, iou3d
@@ -71,19 +76,20 @@ def get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor, est_bearing_ceiling,
     try:
         gt_scale_floor = ch / gt_bearing_floor[1, :]
         gt_pcl_floor = gt_scale_floor * gt_bearing_floor
-        
+
         # To ensure that xz coord for both floor and ceiling are the same
         xz_gt_floor = np.linalg.norm(gt_pcl_floor[[0, 2], :], axis=0)
         xz_gt_ceiling = np.linalg.norm(gt_bearing_ceiling[[0, 2], :], axis=0)
-        
+
         gt_scale_ceiling = xz_gt_floor / xz_gt_ceiling
         gt_pcl_ceiling = gt_scale_ceiling * gt_bearing_ceiling
         gt_h = abs(gt_pcl_ceiling[1, :].mean() - ch)
-        
+
         gt_poly = Polygon(zip(gt_pcl_floor[0], gt_pcl_floor[2]))
     except Exception as e:
         logging.warning("__file__: %s", __file__)
-        logging.warning("Error by projecting Estimated data as Layout Polygon.")
+        logging.warning(
+            "Error by projecting Estimated data as Layout Polygon.")
         logging.exception(f"{e}")
         raise ValueError("Error by projecting GT data as Layout Polygon.")
 
@@ -99,7 +105,7 @@ def get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor, est_bearing_ceiling,
         # To ensure that xz coord for both floor and ceiling are the same
         xz_est_floor = np.linalg.norm(est_pcl_floor[[0, 2], :], axis=0)
         xz_est_ceiling = np.linalg.norm(est_bearing_ceiling[[0, 2], :], axis=0)
-       
+
         est_scale_ceiling = xz_est_floor / xz_est_ceiling
         est_pcl_ceiling = est_scale_ceiling * est_bearing_ceiling
         est_h = abs(est_pcl_ceiling[1, :].mean() - ch)
@@ -109,7 +115,7 @@ def get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor, est_bearing_ceiling,
         logging.error("Error by projecting GT data as Layout Polygon.")
         logging.exception(f"{e}")
         return 0, 0, True
-        
+
     # 2D IoU
     try:
         area_dt = est_poly.area
@@ -127,5 +133,5 @@ def get_2d3d_iou(ch, est_bearing_floor, gt_bearing_floor, est_bearing_ceiling,
         iou3d = area3d_inter / (area3d_pred + area3d_gt - area3d_inter)
     except:
         iou3d = 0
-   
+
     return iou2d, iou3d, True

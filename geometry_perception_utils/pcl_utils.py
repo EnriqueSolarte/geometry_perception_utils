@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import vonmises
 from geometry_perception_utils.spherical_utils import xyz2sph, sph2xyz
 
+
 def generate_pcl_by_roi_theta_phi(theta, phi, n_pts, min_d, max_d):
     """
     It generates a PCL of n_pts points in 3D give a range of theta and phi
@@ -30,14 +31,14 @@ def generate_pcl_by_roi_theta_phi(theta, phi, n_pts, min_d, max_d):
 
 def add_spherical_noise_to_pcl(pcl, std=0.1):
     assert pcl.shape[0] in (3, 4)
-    
+
     theta, phi = xyz2sph(pcl[:3, :])
 
     theta += np.random.normal(0, std, pcl.shape[1])
     phi += np.random.normal(0, std, pcl.shape[1])
 
     return sph2xyz(np.vstack((theta, phi)))
-    
+
 
 def add_outliers_to_pcl(pcl, inliers=1):
     """
@@ -45,8 +46,10 @@ def add_outliers_to_pcl(pcl, inliers=1):
     """
     assert pcl.shape[0] in (3, 4)
     assert inliers <= pcl.shape[1]
-    outliers_src = np.random.randint(0, pcl.shape[1], pcl.shape[1] - int(inliers))
-    outliers_des = np.random.randint(0, pcl.shape[1], pcl.shape[1] - int(inliers))
+    outliers_src = np.random.randint(
+        0, pcl.shape[1], pcl.shape[1] - int(inliers))
+    outliers_des = np.random.randint(
+        0, pcl.shape[1], pcl.shape[1] - int(inliers))
 
     pcl[:, outliers_src] = -pcl[:, outliers_des]
 

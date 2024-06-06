@@ -6,6 +6,7 @@ from geometry_perception_utils.vispy_utils.vispy_utils import plot_list_pcl
 from scipy import interpolate
 from geometry_perception_utils.geometry_utils import extend_array_to_homogeneous
 
+
 class PinholeCamera:
     def __init__(self, cfg):
         self.shape = cfg.resolution
@@ -28,17 +29,17 @@ class PinholeCamera:
 
         # * Bearings vectors on the homogenous plane
         self.default_bearings_pp = uv2xyz(self.default_pixel, self.K)
-        
+
         # * Bearing vectors on the unit sphere
-        self.default_bearings_sph = self.default_bearings_pp / np.linalg.norm(self.default_bearings_pp, axis=0, keepdims=True)        
-        
+        self.default_bearings_sph = self.default_bearings_pp / \
+            np.linalg.norm(self.default_bearings_pp, axis=0, keepdims=True)
+
         # * Theta and phi angles range
         self.theta_range = np.linspace(
             -np.deg2rad(self.fov/2), np.deg2rad(self.fov/2) - self.fov/w, w)
         self.phi_range = np.linspace(
             -np.deg2rad(self.fov/2), np.deg2rad(self.fov/2) - self.fov/h, h)
 
-        
     def get_color_pcl_from_depth_and_rgb_maps(self,
                                               color_map,
                                               depth_map,
@@ -52,13 +53,13 @@ class PinholeCamera:
         return pcl, color_pixels[:, mask]
 
 
- 
 def xyz2uv(xyz, K):
     assert xyz.shape[0] == 3
     __xyz = extend_array_to_homogeneous(xyz)
-    return np.round(K[:2, :] @ __xyz - 0.5) 
+    return np.round(K[:2, :] @ __xyz - 0.5)
+
 
 def uv2xyz(uv, K):
-    assert uv.shape[0] == 2    
+    assert uv.shape[0] == 2
     __uv = extend_array_to_homogeneous(uv + 0.5)
     return np.linalg.inv(K) @ __uv

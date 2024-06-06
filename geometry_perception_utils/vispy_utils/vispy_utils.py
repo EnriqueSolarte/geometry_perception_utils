@@ -17,7 +17,8 @@ def get_vispy_plot(list_xyz, caption=""):
     from geometry_perception_utils.image_utils import add_caption_to_image
 
     try:
-        img = plot_list_pcl([] + list_xyz, return_canvas=True, shape=(512, 512))
+        img = plot_list_pcl(
+            [] + list_xyz, return_canvas=True, shape=(512, 512))
         img = add_caption_to_image(img, f"{caption}", position=(20, 20))
     except:
         img = np.zeros((512, 512, 3), dtype=np.uint8)
@@ -28,13 +29,13 @@ def get_vispy_plot(list_xyz, caption=""):
 
 
 def plot_list_pcl(
-    list_pcl, size=1, colors=None, scale_factor=None, up="-y",
-    return_canvas=False, shape=(1024, 1024), 
-    elevation=90, azimuth=180, roll=0):
+        list_pcl, size=1, colors=None, scale_factor=None, up="-y",
+        return_canvas=False, shape=(1024, 1024),
+        elevation=90, azimuth=180, roll=0):
     if colors is not None:
         colors.__len__() == list_pcl.__len__()
         colors = np.vstack(colors).T/255
-    
+
     else:
         colors = get_color_list(number_of_colors=list_pcl.__len__())
     pcl_colors = []
@@ -87,8 +88,8 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
         'additive',
         blend=False,
         blend_equation='func_add',
-        blend_func=('src_alpha', 'zero'), 
-        cull_face=True, 
+        blend_func=('src_alpha', 'zero'),
+        cull_face=True,
         depth_test=True
     )
     # scatter.set_gl_state(depth_test=True)
@@ -96,16 +97,18 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     view.add(scatter)
     return partial(scatter.set_data, size=size, edge_width=edge_width)
 
+
 def compute_scale_factor(points, factor=3):
     # distances = np.linalg.norm(points, axis=1)
     distances = np.max(abs(points), axis=0)
-    
+
     # max_size = np.quantile(distances, 0.8)
     max_size = np.max(distances)
-    
+
     # if max_size > 50:
     #     return 50
     return factor * max_size
+
 
 def plot_color_plc(
     points,
@@ -123,7 +126,8 @@ def plot_color_plc(
     shape=(2000, 2000)
 ):
 
-    view, canvas= setting_viewer(main_axis=plot_main_axis, bgcolor=background, caption=caption, shape=shape)
+    view, canvas = setting_viewer(
+        main_axis=plot_main_axis, bgcolor=background, caption=caption, shape=shape)
     view.camera = vispy.scene.TurntableCamera(
         elevation=elevation, azimuth=azimuth, roll=roll, fov=0, up=up
     )
@@ -131,13 +135,13 @@ def plot_color_plc(
     #                                           azimuth=0,
     #                                           roll=0,
     #                                           fov=0,
-                                            #  up='-y')
+    #  up='-y')
     if scale_factor is None or scale_factor < 0:
         scale = compute_scale_factor(points)
     else:
         scale = scale_factor
     view.camera.scale_factor = scale
-    draw_pcl = setting_pcl(view=view)
+    draw_pcl = setting_pcl(view=view, size=size, edge_width=size)
     draw_pcl(points, edge_color=color, size=size)
 
     if return_canvas:
@@ -151,5 +155,5 @@ def plot_color_plc(
         # gc.collect()
 
         return img
-        
+
     vispy.app.run()

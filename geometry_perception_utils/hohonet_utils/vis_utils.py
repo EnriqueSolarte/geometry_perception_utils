@@ -1,6 +1,7 @@
 import numpy as np
 from geometry_perception_utils.hohonet_utils.utils import cor_2_1d
 
+
 def layout_2_depth(cor_id, h, w, return_mask=False):
     # Convert corners to per-column boundary first
     # Up -pi/2,  Down pi/2

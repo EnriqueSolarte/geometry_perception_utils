@@ -11,14 +11,16 @@ import numpy as np
 from plyfile import PlyData
 from pyquaternion import Quaternion
 from multiprocessing.pool import ThreadPool
+import importlib
+
 
 def load_instances(self, cfg):
     """
     Load key-value pairs from a config file into the class namespace.
     """
     [setattr(self, key, val) for key, val in cfg.items()]
-    
-        
+
+
 def save_json_dict(filename, dict_data):
     with open(filename, "w") as outfile:
         json.dump(dict_data, outfile, indent="\t")
@@ -94,7 +96,7 @@ def get_files_given_a_pattern(
                 [scenes_paths.append(root) for f in files if flag_file in f]
         else:
             [
-                scenes_paths.append(os.path.join(root, flag_file))
+                scenes_paths.append(os.path.join(root, d))
                 for d in dirs
                 if flag_file in d
             ]
@@ -244,3 +246,14 @@ def check_file_exist(list_files, ext):
 
 def get_abs_path(file):
     return os.path.dirname(os.path.abspath(file))
+
+
+def load_module(module_name):
+    """
+    Load a module and return the instance. The module path 
+    is given by standard python module path, e.g. layout_model.horizon_net_wrapper.wrapper_horizon_net_v2
+    """
+    path_module = module_name.split(".")
+    module = importlib.import_module(".".join(path_module[:-1]))
+    instance = getattr(module, path_module[-1])
+    return instance

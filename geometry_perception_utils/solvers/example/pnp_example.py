@@ -36,8 +36,9 @@ def main():
         pcl_cc = cam_c2w[:3, :] @ extend_array_to_homogeneous(pcl_wc)
 
         bearings_cc = sphere_normalization(pcl_cc)
-        bearings_ccn = add_spherical_noise_to_pcl(bearings_cc.copy(), std=2*np.pi/1024)
-        
+        bearings_ccn = add_spherical_noise_to_pcl(
+            bearings_cc.copy(), std=2*np.pi/1024)
+
         tic_toc = time.time()
         cam_pnp = pnp.recover_pose(landmarks=pcl_wc.copy(),
                                    bearings=bearings_ccn.copy())
@@ -45,19 +46,20 @@ def main():
         timing.append(time.time() - tic_toc)
 
         rot_e, t_e, d_e = evaluate_error_in_transformation(transform_gt=cam_c2w,
-                                                      transform_est=cam_pnp)
+                                                           transform_est=cam_pnp)
 
         rot_errors.append(rot_e)
         t_errors.append(t_e)
         d_errors.append(d_e)
         print(cam_pnp[:3, 3])
         print(cam_c2w[:3, 3])
-        
+
         print(
             f"Mean Rot-error (deg) : {np.mean(rot_errors)} - {rot_errors.__len__()}")
-        print(f"Mean t-error (deg) : {np.mean(t_errors)} - {t_errors.__len__()}")
-        print(f"Mean t-error (dist-e) : {np.mean(d_errors)} - {t_errors.__len__()}")
-        
+        print(
+            f"Mean t-error (deg) : {np.mean(t_errors)} - {t_errors.__len__()}")
+        print(
+            f"Mean t-error (dist-e) : {np.mean(d_errors)} - {t_errors.__len__()}")
 
         print("time: {}".format(np.mean(timing)))
         print(
