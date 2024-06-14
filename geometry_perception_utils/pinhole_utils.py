@@ -63,3 +63,25 @@ def uv2xyz(uv, K):
     assert uv.shape[0] == 2
     __uv = extend_array_to_homogeneous(uv + 0.5)
     return np.linalg.inv(K) @ __uv
+
+
+def get_bearings_from_hfov(h, w, fov):
+    fx, fy = np.deg2rad(fov), np.deg2rad(fov*h/w)
+    x = np.linspace(-np.tan(fx/2), np.tan(fx/2), w)
+    y = np.linspace(-np.tan(fy/2), np.tan(fy/2), h)
+    xx, yy = np.meshgrid(x, y)
+    xy = np.vstack((xx.flatten(), yy.flatten()))
+    bearings = extend_array_to_homogeneous(xy)
+    return bearings
+
+
+def get_bearings_from_K(h, w, K):
+    u = np.linspace(0, w - 1, w).astype(int)
+    v = np.linspace(0, h - 1, h).astype(int)
+    uu, vv = np.meshgrid(u, v)
+    default_pixel = np.vstack(
+        (uu.flatten(), vv.flatten())).astype(np.int32)
+
+    # * Bearings vectors on the homogenous plane
+    bearings_pp = uv2xyz(default_pixel, K)
+    return bearings_pp
