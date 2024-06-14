@@ -23,7 +23,7 @@ def get_hydra_file_dirname(*, _parent_):
 
 
 def get_hydra_dirname(*, _parent_):
-    return HydraConfig.get().runtime.config_sources[1].path.split("/")[-1]
+    return HydraConfig.get().runtime.config_sources[1].path
 
 
 def get_date(format=0, *, _parent_):
