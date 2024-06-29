@@ -210,3 +210,21 @@ def vmerge_list_images(list_images):
             img, scale=sc, anti_aliasing=True, channel_axis=True)
         __images.append(resize_img)
     return np.vstack(__images)
+
+
+def draw_att_map_on_image(image, att_map):
+    assert att_map.shape[:2] == image.shape[:2]
+    mask = att_map/att_map.max()
+    vis = (mask * 255).astype(np.uint8)
+    vis = cv2.applyColorMap(vis, cv2.COLORMAP_JET)
+    vis = image.copy() * 0.2 + vis * 0.6
+    vis = vis.astype(np.uint8)[:, :, :: -1]
+    return vis
+
+
+def draw_mask_on_image(image, mask):
+    assert mask.shape[:2] == image.shape[:2]
+    vis = image.copy() * 0.4
+    vis[mask > 0] = vis[mask > 0] // 2 + \
+        np.array([10, 255, 10], dtype=np.uint8) // 2
+    return vis.astype(np.uint8)
