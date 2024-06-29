@@ -11,6 +11,7 @@ import importlib
 import shutil
 from geometry_perception_utils.io_utils import create_directory
 import numpy as np
+import sys
 
 
 def set_stamp_name(number_names, *, _parent_):
@@ -24,6 +25,11 @@ def get_hydra_file_dirname(*, _parent_):
 
 def get_hydra_dirname(*, _parent_):
     return HydraConfig.get().runtime.config_sources[1].path
+
+
+def get_dirname(input_path, *, _parent_):
+    assert os.path.exists(input_path), f"Path does not exist {input_path}"
+    return os.path.dirname(input_path)
 
 
 def get_date(format=0, *, _parent_):
@@ -76,6 +82,10 @@ def get_dependency_versions(module, *, _parent_):
     return func()
 
 
+def get_python_exe(*, _parent_):
+    return sys.executable
+
+
 OmegaConf.register_new_resolver('set_stamp_name', set_stamp_name)
 OmegaConf.register_new_resolver('get_hostname', get_hostname)
 OmegaConf.register_new_resolver('get_git_commit', get_git_commit)
@@ -88,6 +98,8 @@ OmegaConf.register_new_resolver(
     'get_dependency_versions', get_dependency_versions)
 OmegaConf.register_new_resolver('load', load)
 OmegaConf.register_new_resolver('get_hydra_dirname', get_hydra_dirname)
+OmegaConf.register_new_resolver('get_python_exe', get_python_exe)
+OmegaConf.register_new_resolver('get_dirname', get_dirname)
 
 
 def get_empty_cfg():
