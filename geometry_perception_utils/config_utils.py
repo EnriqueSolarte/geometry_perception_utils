@@ -32,6 +32,11 @@ def get_dirname(input_path, *, _parent_):
     return os.path.dirname(input_path)
 
 
+def get_basename(input_path, *, _parent_):
+    assert os.path.exists(input_path), f"Path does not exist {input_path}"
+    return os.path.basename(input_path)
+
+
 def get_date(format=0, *, _parent_):
     if format == 0:
         return datetime.datetime.now().strftime("%b %d '%y %H:%M:%S")
@@ -100,6 +105,7 @@ OmegaConf.register_new_resolver('load', load)
 OmegaConf.register_new_resolver('get_hydra_dirname', get_hydra_dirname)
 OmegaConf.register_new_resolver('get_python_exe', get_python_exe)
 OmegaConf.register_new_resolver('get_dirname', get_dirname)
+OmegaConf.register_new_resolver('get_basename', get_basename)
 
 
 def get_empty_cfg():
