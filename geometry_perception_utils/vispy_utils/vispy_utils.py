@@ -90,7 +90,7 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
         blend_equation='func_add',
         blend_func=('src_alpha', 'zero'),
         cull_face=True,
-        depth_test=True
+        depth_test=False
     )
     # scatter.set_gl_state(depth_test=True)
     scatter.antialias = 0

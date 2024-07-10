@@ -5,7 +5,7 @@ import numpy as np
 from multiprocessing.pool import ThreadPool
 from geometry_perception_utils.vispy_utils.vispy_utils import plot_list_pcl
 from scipy import interpolate
-import torch
+# import torch
 
 
 class SphericalCamera:

@@ -13,4 +13,4 @@ shapely
 pyransac3d
 scikit-image
 coolname
-opencv-python
+opencv-python-headless

@@ -309,3 +309,12 @@ def evaluate_error_in_transformation(transform_est,
         return np.degrees(rot_err), np.degrees(trans_err), dist_err
     else:
         return np.abs(rot_err), np.abs(trans_err), dist_err
+
+
+def uniform_mask_sampling(h, w, stride=5):
+    u = np.linspace(0, w - 1, w//stride).astype(int)
+    v = np.linspace(0, h - 1, h//stride).astype(int)
+    uu, vv = np.meshgrid(u, v)
+    mask = np.zeros((h, w), dtype=bool)
+    mask[vv.flatten(), uu.flatten()] = True
+    return mask
