@@ -14,3 +14,5 @@ pyransac3d
 scikit-image
 coolname
 opencv-python-headless
+hydra-core
+tqdm

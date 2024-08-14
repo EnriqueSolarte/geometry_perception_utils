@@ -86,11 +86,11 @@ def setting_pcl(view, size=5, edge_width=2, antialias=0):
     scatter = visuals.Markers()
     scatter.set_gl_state(
         'additive',
-        blend=False,
+        blend=True,
         blend_equation='func_add',
         blend_func=('src_alpha', 'zero'),
         cull_face=True,
-        depth_test=False
+        depth_test=True
     )
     # scatter.set_gl_state(depth_test=True)
     scatter.antialias = 0

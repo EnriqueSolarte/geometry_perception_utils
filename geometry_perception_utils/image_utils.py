@@ -228,3 +228,12 @@ def draw_mask_on_image(image, mask):
     vis[mask > 0] = vis[mask > 0] // 2 + \
         np.array([10, 255, 10], dtype=np.uint8) // 2
     return vis.astype(np.uint8)
+
+
+def uniform_sampling(h, w, stride=5):
+    u = np.linspace(0, w - 1, w//stride).astype(int)
+    v = np.linspace(0, h - 1, h//stride).astype(int)
+    uu, vv = np.meshgrid(u, v)
+    mask = np.zeros((h, w), dtype=bool)
+    mask[vv.flatten(), uu.flatten()] = True
+    return mask

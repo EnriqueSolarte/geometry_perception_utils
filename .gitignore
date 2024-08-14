@@ -18,3 +18,4 @@ assets/
 result/
 *output*/
 *vis*/
+*build*/

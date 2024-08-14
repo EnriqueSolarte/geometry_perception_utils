@@ -87,7 +87,7 @@ def get_bearings_from_K(h, w, K):
     return bearings_pp
 
 
-def project_pp_depth_from_K(depth_map, K, mask=None):
+def project_pp_depth_from_K(depth_map, K, mask=None, epsilon=0.1):
     """
     Projects depth maps into 3D considering only the pixels in the mask
     """
@@ -96,25 +96,25 @@ def project_pp_depth_from_K(depth_map, K, mask=None):
     bearings = get_bearings_from_K(h, w, K)
 
     if mask is not None:
-        m = mask.flatten() * depth_map.flatten() > 0.1
+        m = mask.flatten() * depth_map.flatten() > epsilon
     else:
-        m = depth_map.flatten() > 0.1
+        m = depth_map.flatten() > epsilon
     xyz = depth_map.flatten()[m] * bearings[:, m]
     return xyz, m
 
 
-def project_pp_depth_from_hfov(depth_map, hfov=90, mask=None):
+def project_pp_depth_from_hfov(depth_map, hfov=90, mask=None, epsilon=0.1):
     """
     Projects depth maps into 3D considering only the pixels in the mask
     """
 
     # bearing vectors
-    h, w = depth_map.shape[:2]
+    h, w = depth_map.shape[:2]  
     bearings = get_bearings_from_hfov(h, w, hfov)
 
     if mask is not None:
-        m = mask.flatten() * depth_map.flatten() > 0.2
+        m = mask.flatten() * depth_map.flatten() > epsilon
     else:
-        m = depth_map.flatten() > 0.2
+        m = depth_map.flatten() > epsilon
     xyz = depth_map.flatten()[m] * bearings[:, m]
     return xyz, m

@@ -12,6 +12,11 @@ from plyfile import PlyData
 from pyquaternion import Quaternion
 from multiprocessing.pool import ThreadPool
 import importlib
+import re
+
+
+def split_string_by_capital_letter(string):
+    return re.findall(r"[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))", string)
 
 
 def load_instances(self, cfg):
