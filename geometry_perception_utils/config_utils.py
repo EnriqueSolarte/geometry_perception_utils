@@ -20,6 +20,8 @@ def set_stamp_name(number_names, *, _parent_):
 
 
 def get_hydra_file_dirname(*, _parent_):
+    logging.warning("This function is deprecated. Use get_hydra_dirname")
+    exit()
     return HydraConfig.get().runtime.config_sources[1].path
 
 
