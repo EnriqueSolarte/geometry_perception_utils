@@ -34,6 +34,16 @@ def get_dirname(input_path, *, _parent_):
     return os.path.dirname(input_path)
 
 
+def get_parent_dirname(inputs, *, _parent_):
+    root, up = inputs.split(" ")
+    assert os.path.exists(root), f"Path does not exist {root}"
+    up = int(up)
+    _dir = root
+    for _ in range(up):
+        _dir = os.path.dirname(_dir)
+    return _dir
+
+
 def get_basename(input_path, *, _parent_):
     assert os.path.exists(input_path), f"Path does not exist {input_path}"
     return os.path.basename(input_path)
@@ -108,6 +118,7 @@ OmegaConf.register_new_resolver('get_hydra_dirname', get_hydra_dirname)
 OmegaConf.register_new_resolver('get_python_exe', get_python_exe)
 OmegaConf.register_new_resolver('get_dirname', get_dirname)
 OmegaConf.register_new_resolver('get_basename', get_basename)
+OmegaConf.register_new_resolver('get_parent_dirname', get_parent_dirname)
 
 
 def get_empty_cfg():
