@@ -1,5 +1,6 @@
 import csv
 import json
+import yaml
 import logging
 import os
 import shutil
@@ -29,6 +30,11 @@ def load_instances(self, cfg):
 def save_json_dict(filename, dict_data):
     with open(filename, "w") as outfile:
         json.dump(dict_data, outfile, indent="\t")
+
+
+def save_yaml_dict(filename, dict_data):
+    with open(filename, "w") as outfile:
+        yaml.dump(dict_data, outfile)
 
 
 def read_txt_file(filename):
