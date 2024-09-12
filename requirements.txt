@@ -16,3 +16,4 @@ coolname
 opencv-python-headless
 hydra-core
 tqdm
+PyQt5
