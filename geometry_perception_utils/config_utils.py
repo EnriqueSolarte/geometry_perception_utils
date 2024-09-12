@@ -60,6 +60,8 @@ def get_date(format=0, *, _parent_):
         return datetime.datetime.now().strftime("%y%m%d.%H%M%S")
     elif format == 4:
         return datetime.datetime.now().strftime("%y_%m_%d")
+    elif format == 5:
+        return int(datetime.datetime.timestamp(datetime.datetime.now()))
     else:
         return datetime.datetime.now().strftime("%Y-%m-%d")
 
