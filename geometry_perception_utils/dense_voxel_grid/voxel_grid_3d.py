@@ -132,4 +132,3 @@ class VoxelGrid3D:
         z_ = self.u_bins[(idx % (self.h * self.w)) // self.h]+self.grid_size/2
         x_ = self.v_bins[(idx % (self.h * self.w)) % self.h]+self.grid_size/2
         return np.vstack([x_, y_, z_])
-

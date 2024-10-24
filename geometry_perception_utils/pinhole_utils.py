@@ -87,18 +87,23 @@ def get_bearings_from_K(h, w, K):
     return bearings_pp
 
 
-def project_pp_depth_from_K(depth_map, K, mask=None, epsilon=0.1):
+def project_pp_depth_from_K(depth_map, K, mask=None, epsilon=0.1, from_bearings=False):
     """
     Projects depth maps into 3D considering only the pixels in the mask
     """
     # bearing vectors
     h, w = depth_map.shape[:2]
     bearings = get_bearings_from_K(h, w, K)
-
+    
     if mask is not None:
         m = mask.flatten() * depth_map.flatten() > epsilon
     else:
         m = depth_map.flatten() > epsilon
+    
+    if from_bearings:
+        bearing_norm = bearings/np.linalg.norm(bearings, axis=0)
+        xyz = depth_map.flatten()[m] * bearing_norm[:, m]
+        return xyz, m
     xyz = depth_map.flatten()[m] * bearings[:, m]
     return xyz, m
 
