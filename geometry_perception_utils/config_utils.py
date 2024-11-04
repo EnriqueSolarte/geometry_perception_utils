@@ -194,22 +194,6 @@ def merge_cfg(list_cfg):
     return OmegaConf.merge(cfg, cfg)
 
 
-# ! Registering current git commit
-def get_repo_version(REPO_DIR):
-    current_dir = os.getcwd()
-    if os.path.isdir(REPO_DIR):
-        os.chdir(REPO_DIR)
-    else:
-        os.chdir(os.path.dirname(REPO_DIR))
-
-    repo = git.Repo(search_parent_directories=True)
-    commit = repo.head._get_commit()
-    repo_name = Path(repo.working_dir).stem
-    data = f"{repo_name}: {commit.name_rev}"
-    os.chdir(current_dir)
-    return data
-
-
 def update_cfg(cfg, new_struct):
     with open_dict(cfg):
         cfg.update(new_struct)
@@ -237,8 +221,3 @@ def print_cfg(cfg):
     dict_cfg = OmegaConf.create(OmegaConf.to_container(cfg))
     OmegaConf.resolve(dict_cfg)
     logging.info(f"Current cfg:\n{OmegaConf.to_yaml(dict_cfg)}")
-
-
-if __name__ == '__main__':
-    test = get_repo_version(__file__)
-    print(test)
