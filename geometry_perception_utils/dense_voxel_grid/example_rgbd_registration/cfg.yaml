@@ -1,0 +1,30 @@
+
+defaults:
+  - general
+  - _self_
+
+log_dir: ${get_hydra_dirname:}/logs/
+
+scene:
+  data_dir: ${get_hydra_dirname:}/../samples/registered_rgbd
+  rgb_dir: ${scene.data_dir}/rgb
+  depth_dir: ${scene.data_dir}/depth
+  poses_dir: ${scene.data_dir}/poses
+  hfov: 90
+
+
+voxel_grid_2d:
+  bins_fn: ${get_hydra_dirname:}/logs/bins_2d_voxels.pkl
+  voxel_type: voxel_grid_2d
+  grid_size: 0.01
+  padding: 10
+
+voxel_grid_3d:
+  bins_fn: ${get_hydra_dirname:}/logs/bins_3d_voxels.pkl
+  voxel_type: voxel_grid_3d
+  grid_size: 0.01
+  padding: 10
+
+hydra:
+  searchpath:
+    - ${oc.env:GEOM_UTILS_CFG_DIR}
