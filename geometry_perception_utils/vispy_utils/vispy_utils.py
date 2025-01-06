@@ -65,7 +65,7 @@ def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_color
 
 
 def setting_viewer(main_axis=True, bgcolor="black", caption="", shape=(512, 512)):
-    canvas = vispy.scene.SceneCanvas(show=True, bgcolor=bgcolor)
+    canvas = vispy.scene.SceneCanvas(keys='interactive', show=True, bgcolor=bgcolor)
     # size_win = shape[0]
     canvas.size = shape
 
@@ -119,11 +119,11 @@ def plot_color_plc(
     scale_factor=None,
     caption="",
     return_canvas=False,
-    elevation=90,
+    elevation=45,
     azimuth=0,
     up="-y",
     roll=0,
-    shape=(2000, 2000)
+    shape=(512, 512)
 ):
 
     view, canvas = setting_viewer(
