@@ -12,13 +12,13 @@ import os
 from imageio import imwrite
 from vispy import app, gloo
 
-
-def get_vispy_plot(list_xyz, caption=""):
+DEFAULT_SHAPE = (1000, 1000)
+def get_vispy_plot(list_xyz, caption="", shape=DEFAULT_SHAPE):
     from geometry_perception_utils.image_utils import add_caption_to_image
 
     try:
         img = plot_list_pcl(
-            [] + list_xyz, return_canvas=True, shape=(512, 512))
+            [] + list_xyz, return_canvas=True, shape=shape)
         img = add_caption_to_image(img, f"{caption}", position=(20, 20))
     except:
         img = np.zeros((512, 512, 3), dtype=np.uint8)
@@ -30,7 +30,7 @@ def get_vispy_plot(list_xyz, caption=""):
 
 def plot_list_pcl(
         list_pcl, size=1, colors=None, scale_factor=None, up="-y",
-        return_canvas=False, shape=(1024, 1024),
+        return_canvas=False, shape=DEFAULT_SHAPE,
         elevation=90, azimuth=180, roll=0):
     if colors is not None:
         colors.__len__() == list_pcl.__len__()
@@ -64,7 +64,7 @@ def get_color_list(array_colors=None, fr=0.1, return_list=False, number_of_color
     return hsv_to_rgb(colors.T).T
 
 
-def setting_viewer(main_axis=True, bgcolor="black", caption="", shape=(512, 512)):
+def setting_viewer(main_axis=True, bgcolor="black", caption="", shape=DEFAULT_SHAPE):
     canvas = vispy.scene.SceneCanvas(keys='interactive', show=True, bgcolor=bgcolor)
     # size_win = shape[0]
     canvas.size = shape
@@ -123,7 +123,7 @@ def plot_color_plc(
     azimuth=0,
     up="-y",
     roll=0,
-    shape=(512, 512)
+    shape=DEFAULT_SHAPE
 ):
 
     view, canvas = setting_viewer(
