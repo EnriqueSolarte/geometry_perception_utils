@@ -318,3 +318,32 @@ def uniform_mask_sampling(h, w, stride=5):
     mask = np.zeros((h, w), dtype=bool)
     mask[vv.flatten(), uu.flatten()] = True
     return mask
+
+
+def triangulate_points_from_cam_pose(cam_pose, x1, x2):
+    '''
+    Triangulate 4D-points based on the relative camera pose and pts1 & pts2 matches
+    :param Mn: Relative pose (4, 4) from cam1 to cam2
+    :param x1: (3, n)
+    :param x2: (3, n)
+    :return:
+    '''
+
+    assert x1.shape[0] == 3
+    assert x1.shape == x2.shape
+
+    cam_pose = np.linalg.inv(cam_pose)
+    landmarks_x1 = []
+    for p1, p2 in zip(x1.T, x2.T):
+        p1x = vector2skew_matrix(p1.ravel())
+        p2x = vector2skew_matrix(p2.ravel())
+
+        A = np.vstack(
+            (np.dot(p1x,
+                    np.eye(4)[0:3, :]), np.dot(p2x, cam_pose[0:3, :])))
+        U, D, V = np.linalg.svd(A)
+        landmarks_x1.append(V[-1])
+
+    landmarks_x1 = np.asarray(landmarks_x1).T
+    landmarks_x1 = landmarks_x1 / landmarks_x1[3, :]
+    return landmarks_x1[:3, :]  # Return only the 3D points
