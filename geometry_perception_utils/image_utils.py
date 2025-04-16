@@ -56,9 +56,19 @@ def set_alpha(img, alpha=0.5):
     return img.astype(np.uint8)
 
 
+def get_map_from_array(array, shape):
+    """
+    returns a map (H, W, 3) from an array (3, n), or a map (H, W) from (1, n). 
+    This function is the inverse of get_color_array(*)
+    """
+    H, W = shape[:2]
+    channels = [a.reshape((H, W)) for a in array]
+    return np.stack(channels, axis=-1)
+
+
 def get_color_array(color_map):
     """
-    returns an array (3, n) of the colors in image (H, W)
+    returns an array (3, n) of map (H, W, 3), or (1, n) of map (H, W)
     """
     # ! This is the same solution by flatten every channel
     if len(color_map.shape) > 2:
