@@ -54,3 +54,19 @@ def add_outliers_to_pcl(pcl, inliers=1):
     pcl[:, outliers_src] = -pcl[:, outliers_des]
 
     return pcl
+
+
+def max_min_normalization(xyz, max_scale=None, min_scale=None):
+    assert xyz.shape[0] == 3
+    assert xyz.shape[1] > 1
+
+    if max_scale is None:
+        max_scale = np.max(xyz, axis=1)
+    if min_scale is None:
+        min_scale = np.min(xyz, axis=1)
+
+    colors = np.zeros_like(xyz)
+    for i, (s_max, s_min) in enumerate(zip(max_scale, min_scale)):
+        s_max = s_max - s_min
+        colors[i, :] = (xyz[i, :] - s_min) / s_max
+    return colors, max_scale, min_scale
