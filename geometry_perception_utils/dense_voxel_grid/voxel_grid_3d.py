@@ -94,7 +94,7 @@ class VoxelGrid3D:
         vxl_idx: Indexes to reference the xyz points [1 x n]
         """
         if xyz.size == 0:
-            return None, None, None
+            return None, None, None, None
 
         # v_bins --> x coord
         self.v_bins = self.extend_bins(xyz[0], self.v_bins)

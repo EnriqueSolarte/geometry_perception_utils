@@ -6,7 +6,7 @@ with open("./requirements.txt", "r") as f:
 
 setup(
     name="geometry-perception-utils-dev",
-    version=f"1.0.4",
+    version=f"1.0.5",
     packages=find_packages(),
     install_requires=requirements,
     package_data={
