@@ -17,5 +17,5 @@ assets/
 *tmp*
 result/
 *output*/
-*vis*/
+# *vis*/
 *build*/
